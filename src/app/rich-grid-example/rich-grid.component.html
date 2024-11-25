@@ -1,0 +1,162 @@
+<div style="width: 100%; padding: 20px">
+    <h1>Rich Grid Example</h1>
+    <div style="width: 800px">
+        <div style="display: inline-block; width: 100%">
+            <div style="float: left">
+                <b>Employees Skills and Contact Details: </b>{{rowCount}}
+            </div>
+        </div>
+        
+        
+
+
+        <div style="margin: 10px">
+          <div class="dropdown" ngbDropdown>
+            <a class="dropdown-toggle btn btn-primary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="iconsax" icon-name="eye"></i>Columns
+            </a>
+            <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
+                <h6>Select Column</h6>
+                <ul>
+                    <li>
+                        <div class="role_per_checkbox">
+                            <input type="checkbox" id="custom_column_SelectAll" >
+                            <label for="custom_column_SelectAll" class="custom_column_SelectAll">Select All</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="role_per_checkbox">
+                            <input type="checkbox" id="custom_column_country" [(ngModel)]="columnControl.country" (change)="controlColumn('country')">
+                            <label for="custom_column_country" class="">Country</label>
+                        </div>
+                    </li>
+                    <li>
+                      <div class="role_per_checkbox">
+                          <input type="checkbox" id="custom_column_middlename" [(ngModel)]="columnControl.middlename" (change)="controlColumn('middlename')">
+                          <label for="custom_column_middlename" class="">MiddleName</label>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="role_per_checkbox">
+                          <input type="checkbox" id="custom_column_mobile" [(ngModel)]="columnControl.mobile" (change)="controlColumn('mobile')">
+                          <label for="custom_column_mobile" class="">Mobile</label>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="role_per_checkbox">
+                          <input type="checkbox" id="custom_column_address" [(ngModel)]="columnControl.address" (change)="controlColumn('address')">
+                          <label for="custom_column_address" class="">Address</label>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="role_per_checkbox">
+                          <input type="checkbox" id="custom_column_kyc" [(ngModel)]="columnControl.kyc" (change)="controlColumn('kyc')">
+                          <label for="custom_column_kyc" class="">KYC</label>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="role_per_checkbox">
+                          <input type="checkbox" id="custom_column_MarriageStatus" [(ngModel)]="columnControl.marriageStatus" (change)="controlColumn('marriageStatus')">
+                          <label for="custom_column_MarriageStatus" class="">Marriage Status</label>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="role_per_checkbox">
+                          <input type="checkbox" id="custom_column_dob" [(ngModel)]="columnControl.dob" (change)="controlColumn('dob')">
+                          <label for="custom_column_dob" class="">Birth Date</label>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="role_per_checkbox">
+                          <input type="checkbox" id="custom_column_gautra" [(ngModel)]="columnControl.gautra" (change)="controlColumn('gautra')">
+                          <label for="custom_column_gautra" class="">Gautra</label>
+                      </div>
+                    </li>
+                    </ul>
+            </div>
+        </div>
+            <div>
+              <!-- <button (click)="this.api.resetColumnState()" class="btn btn-primary">reset</button> -->
+            <span>
+                Grid API:
+                <button (click)="this.api.selectAll()" class="btn btn-primary">Select All</button>
+                <button (click)="this.api.deselectAll()" class="btn btn-primary">Clear Selection</button>
+                <button (click)="exportExcel()" class="btn btn-primary">Export</button>
+                <button (click)="fetchSheetData1()" class="btn btn-primary">Fetch Data (No Auth)</button>
+                <button (click)="appendSheetData1()" class="btn btn-primary">Fetch Data (No Auth)</button>
+            </span>
+            <div>
+                <button *ngIf="!this.authService.identityClaims" class="btn btn-primary" (click)="login()">Login with Google</button>
+                <button *ngIf="this.authService.identityClaims" class="btn btn-primary" (click)="login()">LogOut</button>
+                <button *ngIf="this.authService.identityClaims" class="btn btn-primary" (click)="fetchSheetData()">Fetch Sheet Data</button>
+                <button *ngIf="this.authService.identityClaims" class="btn btn-primary" (click)="updateSheetData()">Update Sheet Data</button>
+                <button *ngIf="this.authService.identityClaims" class="btn btn-primary" (click)="appendSheetData()">Append Sheet Data</button>
+              </div>
+              
+                <span style="float: right">
+                Column API:
+                <button (click)="this.api.setColumnsVisible(['country'], false)" class="btn btn-primary">Hide Country Column</button>
+                <button (click)="this.api.setColumnsVisible(['country'], true)" class="btn btn-primary">Show Country Column</button>
+            </span>
+            </div>
+        </div>
+        <div style="display: inline-block; width: 100%; margin-top: 10px; margin-bottom: 10px">
+            <div style="float: left">
+                <button (click)="this.createRowData()" class="btn btn-primary">Refresh Data</button>
+            </div>
+            <div style="float: right">
+                Filter API:
+                <button (click)="this.invokeSkillsFilterMethod()" class="btn btn-primary">Invoke Skills Filter Method
+                </button>
+                <button (click)="this.dobFilter()" class="btn btn-primary">DOB equals to 01/01/2000</button>
+            </div>
+        </div>
+        <div style="display: inline-block; width: 100%; margin-top: 10px; margin-bottom: 10px">
+            <div style="float: left">
+                <label for="sideBarToggle">Show Side Bar&nbsp;</label>
+                <input type="checkbox" id="sideBarToggle" (change)="toggleSidebar($event)" style="margin-right: 5px" />
+            </div>
+            <div style="float: right; margin-left: 20px">
+                <label for="quickFilter">Quick Filter:&nbsp;</label>
+                <input (keyup)="onQuickFilterChanged($event)" type="text" id="quickFilter"
+                       placeholder="Type text to filter..." style="margin-right: 10px"/>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="sheetData.length > 0">
+        <h3>Google Sheets Data:</h3>
+        <table border="1">
+          <thead>
+            <tr>
+              <th *ngFor="let header of sheetData[0]">{{ header }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of sheetData.slice(1)">
+              <td *ngFor="let cell of row">{{ cell }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    <ag-grid-angular style="width: 100%; padding-right: 20px; height: 650px;" class="ag-theme-alpine"
+                     [columnDefs]="columnDefs"
+                     [sideBar]="sideBar"
+                     [rowData]="rowData"
+
+                     [defaultColDef]="defaultColDef"
+                     [components]="components"
+                     [modules]="modules"
+
+                     [enableCharts]="true"
+                     [enableRangeSelection]="true"
+
+                     [suppressRowClickSelection]="true"
+                     [rowSelection]="'multiple'"
+
+                     (gridReady)="onGridReady($event)"
+                     (modelUpdated)="onModelUpdated()"
+                     (cellClicked)="onCellClicked($event)"
+                     (cellDoubleClicked)="onCellDoubleClicked($event)"
+                     (cellContextMenu)="onCellContextMenu($event)">
+    </ag-grid-angular>
+</div>
