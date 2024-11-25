@@ -28,6 +28,8 @@ import { GoogleAuthService } from '../services/auth/google-auth.service';
 // import {LicenseManager} from "@ag-grid-enterprise/core";
 // LicenseManager.setLicenseKey(<your key>);
 
+// Refrences: https://github.com/ag-grid/ag-grid-angular-cli-example
+
 @Component({
     selector: 'rich-grid',
     templateUrl: 'rich-grid.component.html',
