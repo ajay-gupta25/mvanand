@@ -235,16 +235,18 @@ export class RichGridComponent {
                 //     innerRenderer: countryCellRenderer,
                 // },
             },
-            {
-                headerName: 'User',
-                headerGroupComponent: 'headerGroupComponent',
-                children: [
+            // {
+            //     headerName: 'User',
+            //     headerGroupComponent: 'headerGroupComponent',
+            //     children: [
                     {
                         field: 'name',
                         width: 150,
                         pinned: true,
                         enableRowGroup: true,
-                        enablePivot: false
+                        enablePivot: false,
+                        // lockVisible: true,
+                        // hide: true
                     },
                     {
                         headerName: 'Firstname',
@@ -256,7 +258,8 @@ export class RichGridComponent {
                         pinned: true,
                         field: 'firstname',
                         columnGroupShow: 'open',
-                        filter: 'agTextColumnFilter'
+                        filter: 'agTextColumnFilter',
+                        // hide: true
                     },
                     {
                         headerName: 'Middlename',
@@ -268,7 +271,8 @@ export class RichGridComponent {
                         pinned: true,
                         field: 'middlename',
                         columnGroupShow: 'open',
-                        filter: 'agTextColumnFilter'
+                        filter: 'agTextColumnFilter',
+                        hide: true // this values should be fetch from separte excelsheet so every time not need to create build
                     },
                     {
                         headerName: 'Surname',
@@ -282,19 +286,19 @@ export class RichGridComponent {
                         columnGroupShow: 'open',
                         filter: 'agTextColumnFilter'
                     },
-                    {
-                        field: 'country',
-                        width: 150,
-                        cellRenderer: countryCellRenderer,
-                        pinned: true,
-                        filterParams: {
-                            cellRenderer: countryCellRenderer,
-                            cellHeight: 20
-                        },
-                        enableRowGroup: true,
-                        enablePivot: true,
-                        columnGroupShow: 'open'
-                    },
+                    // {
+                    //     field: 'country',
+                    //     width: 150,
+                    //     cellRenderer: countryCellRenderer,
+                    //     pinned: true,
+                    //     filterParams: {
+                    //         cellRenderer: countryCellRenderer,
+                    //         cellHeight: 20
+                    //     },
+                    //     enableRowGroup: true,
+                    //     enablePivot: true,
+                    //     columnGroupShow: 'open'
+                    // },
                     // {
                     //     headerName: 'DOB',
                     //     field: 'dob',
@@ -309,24 +313,26 @@ export class RichGridComponent {
                     //     filter: 'agDateColumnFilter',
                     //     columnGroupShow: 'open'
                     // }
-                ]
-            },
-            {
-                headerName: 'Contact',
-                children: [
+            //     ]
+            // },
+            // {
+            //     headerName: 'Contact',
+            //     children: [
                     {
                         field: 'mobile',
                         cellRenderer: RendererComponent,
                         minWidth: 150,
                         sortable: false,
                         suppressMenu: true,
-                        filter: 'agTextColumnFilter'
+                        filter: 'agTextColumnFilter',
+                        hide: true
                     },
                     {
                         field: 'address',
                         minWidth: 500,
                         suppressMenu: true,
-                        filter: 'agTextColumnFilter'
+                        filter: 'agTextColumnFilter',
+                        hide: true
                     },
                     {
                         headerName: 'KYC',
@@ -336,19 +342,21 @@ export class RichGridComponent {
                         filter: false,
                         sortable: false,
                         suppressMenu: true,
-                        pinned: false
+                        pinned: false,
+                        hide: true
                     },
-                ]
-            },
-            {
-                headerName: 'Matrimonial Details',
-                children: [
+            //     ]
+            // },
+            // {
+            //     headerName: 'Matrimonial Details',
+            //     children: [
                     {
                         field: 'marriageStatus',
                         minWidth: 150,
                         sortable: false,
                         suppressMenu: true,
-                        filter: 'agTextColumnFilter'
+                        filter: 'agTextColumnFilter',
+                        hide: true
                     },
                     {
                         headerName: 'DOB',
@@ -362,6 +370,7 @@ export class RichGridComponent {
                                 params.value.getFullYear() || 0;
                         },
                         menuTabs: ['filterMenuTab'],
+                        hide: true
                         // filter: 'agDateColumnFilter',
                         // columnGroupShow: 'open'
                     },
@@ -370,10 +379,11 @@ export class RichGridComponent {
                         minWidth: 150,
                         sortable: false,
                         suppressMenu: true,
-                        filter: 'agTextColumnFilter'
+                        filter: 'agTextColumnFilter',
+                        hide: true
                     },
-                ]
-            },
+            //     ]
+            // },
             {
                 headerName: 'IT Skills',
                 children: [

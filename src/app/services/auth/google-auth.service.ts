@@ -18,8 +18,8 @@ export class GoogleAuthService {
     strictDiscoveryDocumentValidation: false,
     clientId: '494395922809-oa4h19stvej6gt8bvmjnv7ofoni7ap5i.apps.googleusercontent.com',
     scope: 'openid profile email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets',
-    redirectUri: 'https://ajay-gupta25.github.io/mvanand/',
-    // redirectUri: window.location.origin,
+    // redirectUri: 'https://ajay-gupta25.github.io/mvanand/',
+    redirectUri: window.location.origin,
   }
 
   constructor(private oauthService: OAuthService) {

@@ -6,7 +6,7 @@ export default class RefData {
 
     static firstNames = ["Sophie", "Isabelle", "Emily", "Olivia", "Lily", "Chloe", "Isabella",
         "Amelia", "Jessica", "Sophia", "Ava", "Charlotte", "Mia", "Lucy", "Grace", "Ruby",
-        "Ella", "Evie", "Freya", "Isla", "Poppy", "Daisy", "Layla"];
+        "Ella", "Evie", "Freya", "Isla", "Poppy", "Daisy", "Layla", "સંજય"];
     static middleNames = ["Isabelle", "Emily", "Olivia", "Lily", "Chloe", "Isabella",
         "Amelia", "Jessica", "Sophia", "Ava", "Charlotte", "Mia", "Lucy", "Grace", "Ruby",
         "Ella", "Evie", "Freya", "Isla", "Poppy", "Daisy"];
@@ -14,7 +14,7 @@ export default class RefData {
         "Cage", "Carson", "Chandler", "Cohen", "Cole", "Corbin", "Dallas", "Dalton", "Dane",
         "Donovan", "Easton", "Fisher", "Fletcher", "Grady", "Greyson", "Griffin", "Gunner",
         "Hayden", "Hudson", "Hunter", "Jacoby", "Jagger", "Jaxon", "Jett", "Kade", "Kane",
-        "Keating", "Keegan", "Kingston", "Kobe"];
+        "Keating", "Keegan", "Kingston", "Kobe", "પટેલ"];
 
     static marriageStatus = ["Single", "Married", "Widowed", "Divorced", "Separated"];
     static gautras = ["Garg", "Goyal", "Goyan", "Bansal", "Kansal", "Singhal", "Jindal", "Madhukul", "Bhandal", "Kuchhal", "Nagal"];
