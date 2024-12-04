@@ -36,7 +36,7 @@
     --primary-font:'Inter';
 }
 *{margin:0;padding:0;list-style:none;box-sizing:border-box;}
-body{background-color:var(--darkblue-color);font-family:var(--primary-font);font-size:14px;color:var(--gray-600);line-height:1.2;font-weight:400;overflow-x:hidden;}
+body{font-family:var(--primary-font);font-size:14px;color:var(--gray-600);line-height:1.2;font-weight:400;overflow-x:hidden;}
 html{-webkit-box-sizing:border-box;box-sizing:border-box;}
 a{text-decoration:none;transition:all 0.3s ease-in-out;display:inline-block;color:var(--primary-color);}
 button{border:0;outline:0;background:transparent;}
@@ -299,6 +299,8 @@ table thead th.sorting_desc label:before{transform:rotate(180deg);top:-2px;}
 .tabs_menu li a.active-link{border-color:var(--primary-color);color:var(--primary-color);}
 .page_header{margin-bottom:16px;gap:16px;}
 .dropdown .CustomColumn_Dropdown{padding:12px;border-radius:16px;box-shadow:0px 2px 4px -2px #1018280F,0px 4px 8px -2px #1018281A;width:170px;right:auto!important;left:-20px!important;}
+.CustomColumn_Dropdown_combined{width:auto !important}
+.CustomColumn_Dropdown_combined td > div {padding-bottom: 15px;}
 .dropdown .CustomColumn_Dropdown h6{font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--gray-200);}
 .dropdown .CustomColumn_Dropdown ul{padding:0;}
 .dropdown .CustomColumn_Dropdown ul li{margin-bottom:8px;}
