@@ -1,0 +1,14 @@
+<div class="settingstabs_header" *ngIf="show_setting">
+    <div class="page_title">
+        <h4>Settings</h4>
+        <ul class="tabs_menu">
+            <li><a routerLink="/home/userManagement"  *ngIf="hasPermission('User Management', 'view')" routerLinkActive="active-link"  [routerLinkActiveOptions]="{exact: true}">User Management</a></li>
+            <!-- <li><a routerLink="/home/roleManagement" *ngIf="hasPermission('Role Permission', 'view')" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: false}">Roles Permissions</a></li>
+            <li><a routerLink="/home/companies" routerLinkActive="active-link" *ngIf="hasPermission('Company Management', 'view')" [routerLinkActiveOptions]="{exact: true}">Company Management</a></li>
+            <li><a routerLink="/home/organizations" routerLinkActive="active-link" *ngIf="hasPermission('Organization Management', 'view')" [routerLinkActiveOptions]="{exact: true}">Organization Management</a></li>
+            <li><a routerLink="/home/folderManagement" routerLinkActive="active-link" *ngIf="hasPermission('Manage Folder', 'view')" [routerLinkActiveOptions]="{exact: true}" >Manage Folders</a></li>
+            <li><a routerLink="/home/application" routerLinkActive="active-link" *ngIf="hasPermission('Application', 'view')" [routerLinkActiveOptions]="{exact: true}" >Application</a></li>
+            <li><a routerLink="/home/category" routerLinkActive="active-link" *ngIf="hasPermission('Category Template Management', 'view')" [routerLinkActiveOptions]="{exact: true}" >Category Template Management</a></li> -->
+        </ul>
+    </div>
+</div>

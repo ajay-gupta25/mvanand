@@ -1,0 +1,15 @@
+
+
+<section class="site_container">
+  <div class="site_main">
+      <div class="site_main_inner">
+        <app-progress-bar class="position-fixed w-100" *ngIf="storeService.isLoading$ | async"></app-progress-bar>
+        <div class="login_container">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+  </div>
+  <app-layout-footer></app-layout-footer>
+</section>
+
+<app-toast aria-live="polite" aria-atomic="true"></app-toast>

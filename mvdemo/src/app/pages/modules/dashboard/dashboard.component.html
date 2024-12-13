@@ -1,0 +1,103 @@
+<app-layout-header></app-layout-header>
+<app-page-layout>
+    <div class="main_content">
+        <app-progress-bar *ngIf="isLoading"></app-progress-bar>
+        <ng-container>
+            <div class="page_header mb-1 d-flex align-items-center justify-content-between flex-wrap">
+                <div class="page_title">
+                    <h4>Dashboard</h4>
+                </div>
+            </div>
+            <div class="transcript_tabs">
+                <ul ngbNav #nav="ngbNav" [(activeId)]="TabActive" class="nav-tabs tabs_header">
+                    <li [ngbNavItem]="1">
+                        <button ngbNavLink (click)="ngAfterViewInit()" >Summary Report</button>
+                        <ng-template ngbNavContent>
+                            <div class="datatable_header">
+                                <div class="datatable_filter">
+                                    <label for="">Company</label>
+                                    <ng-select [items]="companyList" [(ngModel)]="selectCom" placeholder="Select Company" bindLabel="company_name" bindValue="_id"
+                                    >
+                                </ng-select>
+                                </div>
+                                <div class="datatable_filter">
+                                    <label for="">Organization</label>
+                                    <ng-select [items]="orgList" bindLabel="org_name" [(ngModel)]="selectOrg" placeholder="Select Organization"  bindLabel="org_name" bindValue="_id" (change)="getFolderByorganisationID($event)">
+                                </ng-select>
+                                </div>
+                                <div class="datatable_filter">
+                                    <label for="">Folder</label>
+                                    <ng-select [items]="folderList" class="col-md-3" placeholder="Select Folder" bindLabel="name" bindValue="_id" [(ngModel)]="selectfold">
+                                    </ng-select>
+                                </div>
+                                <div class="datatable_filter">
+                                    <label for="">From:</label>
+                                    <input type="date" placeholder="DD/MM/YYYY" class="form-control" [(ngModel)]="fromDate" [max]="toDate || maxDate" (change)="checkDateValidation()">
+                                </div>
+                                <div class="datatable_filter">
+                                    <label for="">To:</label>
+                                    <input type="date" placeholder="DD/MM/YYYY" class="form-control" [(ngModel)]="toDate" [min]="fromDate" [max]="maxDate" (change)="checkDateValidation()">
+                                </div>
+                                <button type="button" class="btn btn-primary px-4" (click)="getCallsCount()">Apply</button>
+                                <button type="button" class="btn btn-secondary px-4"  (click)="clearGraphFilters();" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Clear</button>
+                            </div>
+                            <div class="dashboard_header">
+                                <div class="dashboard_header_list">
+                                    <p>Total Calls</p>
+                                    <h2> {{ callCounts?.totalCalls || 0 }} calls</h2>
+                                   
+                                </div>
+                                <div class="dashboard_header_list">
+                                    <p>Avg. Agent Positive Response</p>
+                                    <h2>  {{ callCounts?.percentageAgentPositive || 0 }}</h2>
+                                  
+                                </div>
+                                <div class="dashboard_header_list">
+                                    <p>Avg. Client Positive Response</p>
+                                    <h2>  {{ callCounts?.percentageClientPositive || 0 }}</h2>
+                                </div>
+                                <div class="dashboard_header_list">
+                                    <p>Avg. Agent Calls</p>
+                                    <h2>  {{ callCounts?.averageAgentCalls || 0 }}</h2>
+                                </div>
+                                <div class="dashboard_header_list">
+                                    <p>Avg. Agent Call TalkTime</p>
+                                    <h2>  {{ callCounts?.avgAgentCallTalkTime || 0 }}</h2>
+                                </div>
+                            </div>
+                            <div class="dashboard_main">
+                                <div class="row">
+                                    <div class="col-md-6" >
+                                        <div class="chart-container">
+                                            <div class="page_title mb-3"><h4 class="">Call Volume</h4></div>
+                                            <canvas id="myChartCallVolume" width="400" height="200" class="img-fluid w-100"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="chart-container">
+                                            <div class="page_title mb-3"><h4 class="">Call Duration</h4></div>
+                                            <canvas id="myChartCallDuration" width="400" height="200" class="img-fluid w-100"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="chart-container">
+                                            <div class="page_title mb-3"><h4 class="">Agent Emotions</h4></div>
+                                            <canvas id="myBarChartForAgent" width="400" height="200" class="img-fluid w-100"></canvas>
+                                         </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="chart-container">
+                                            <div class="page_title mb-3"><h4 class="">Client Emotions</h4></div>
+                                            <canvas id="myBarChartForClient" width="400" height="200" class="img-fluid w-100"></canvas>
+                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </li>
+                </ul>
+                <div [ngbNavOutlet]="nav" class="mt-2"></div>
+            </div>
+        </ng-container>
+    </div>
+</app-page-layout>

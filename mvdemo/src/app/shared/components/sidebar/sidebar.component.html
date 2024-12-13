@@ -1,0 +1,31 @@
+<div class="sidebar">
+  <div class="sidebar_inner">
+    <div class="sidebar_logo">
+      <a routerLink="/home">
+        <h1>{{ appName }}</h1>
+      </a>
+    </div>
+    <div class="sidebar_menu">
+      <ul>
+        <li><a routerLink="/home/dashboard"  routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}"><i
+              class="iconsax" icon-name="home-1"></i>Dashboard</a></li>
+        <!-- <li><a routerLink="/home/call-search" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}"><i
+              class="iconsax" icon-name="folder-1"></i> Call Files</a></li> -->
+        <ng-container *ngIf="currentUrl !== undefined">
+          <ng-container *ngFor="let routePath of routePaths">
+            <li *ngIf="currentUrl === routePath">
+              <a [routerLink]="routePath" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
+                <i class="iconsax" icon-name="setting-1"></i> Settings
+              </a>
+            </li>
+          </ng-container>
+        </ng-container>
+        <li *ngIf="!routePaths.includes(currentUrl)">
+          <a routerLink="/home/userManagement" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
+            <i class="iconsax" icon-name="setting-1"></i> Settings
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

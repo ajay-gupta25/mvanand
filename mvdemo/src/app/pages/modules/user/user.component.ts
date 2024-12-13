@@ -1,0 +1,914 @@
+import { Component, ElementRef, Input, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { UserService } from '@services/user.service';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { User } from './user.model'
+import { CompanyService } from '@services/company.service';
+import { ToastrService } from 'ngx-toastr';
+import { HttpClient } from '@angular/common/http';
+import { PermissionService } from 'src/app/shared/auth/permssion.guard';
+import { GoogleSheetsService } from '@services/google-sheet/google-sheets.service';
+import { GoogleAuthService } from '@services/auth/google-auth.service';
+import { Router } from '@angular/router';
+import {jsPDF} from 'jspdf';
+import { lastValueFrom } from 'rxjs';
+
+
+@Component({
+  selector: 'app-user',
+  templateUrl: './user.component.html',
+  styleUrls: ['./user.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+})
+export class UserComponent {
+  @ViewChild('session_expired', { static: true }) sessionTemplate!: TemplateRef<any>;
+  @ViewChild('pdfTable', {static: false}) pdfTable: ElementRef;
+  isDeleteButtonClicked = false;
+  isImportButtonClicked = false;
+  userHeader = [];
+  userArray = [];
+  statusArray = [{ "key": "Active" },
+  { "key": "InActive" }]
+  modelRef: NgbModalRef;
+  edituserId: string;
+  companyId: string;
+  deletedUserId: string;
+  search: string = '';
+  companyNamesObj: any = [];
+  public isLoading: boolean = true;
+  locations: any = [];
+  selectedFile: File | null = null;
+
+  @Input('data') meals: string[] = [];
+  imageUploadstatus: boolean = false;
+  fileName: string;
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalpages: number = 1;
+  TotalCount:number = 0;
+  Objectfilter:Object={};
+  sortField: string = 'emp_id'; // Default sort field
+  // sortDirection:string = 'asc'; // Default sort direction
+  selectedCompany: any = null; // Initialize selectedCompany with null
+  selectedLocation: any = null; // Initialize selectedLocation with null
+  selectedStatus: any = null;
+  activeuploadbutton:boolean= false;
+
+  loggedIn = false;
+  userName: string | null = '';
+
+  public columnControl = {
+    ID: false,
+    MemberName: true,
+    Firstname: false,
+    Middlename: false,
+    Lastname: false,
+    Mobile: false,
+    Address: false,
+    Location: false,
+    Email: false,
+    MarriageStatus: false,
+    BirthDate: false,
+    Gautra: false,
+    KYC: false,
+    // Add more controls as needed
+  };
+
+  // Define which columns can be sorted
+  sortableColumns: { [key: string]: boolean } = {
+    ID: false,
+    MemberName: true,
+    Firstname: true,
+    Middlename: true,
+    Lastname: true,
+    Mobile: false,
+    Address: false, // Example: Address column is not sortable
+    Location: true,
+    Email: false,
+    MarriageStatus: false,
+    BirthDate: false,
+    Gautra: false,
+    KYC: false
+  };
+
+  // Control which columns have a search box
+  searchableColumns = {
+    ID: false,
+    MemberName: false,
+    Firstname: true,
+    Middlename: true, // Example: Middlename search box is hidden
+    Lastname: false,
+    Mobile: false,
+    Address: false,
+    Location: false,
+    Email: false,
+    MarriageStatus: false, // Example: MarriageStatus search is disabled
+    BirthDate: false,
+    Gautra: false,
+    KYC: false
+  };
+  searchValues: { [key: string]: string } = {};
+  activeSearch: string | null = null;
+  isSearchActivate: boolean = false;
+
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' | null = 'asc';
+  
+  yearColumnHeader;
+  nonYearColumnCount = 15;
+  receiptEditData: any = {};
+
+  columnControlSelectAll = false;
+  sortableColumnsSelectAll = false;
+  searchableColumnsSelectAll = false;
+
+  languages: any = ['Gujarati', 'Hindi', 'English'];
+  languageControl: any = {
+    Gujarati: false, 
+    Hindi: false, 
+    English: true, 
+  };
+
+  gujUserArray: any = [];
+  selectedLanguage = 'English';
+
+
+  constructor
+    (
+      private userService: UserService,
+      private modalService: NgbModal,
+      private toastr: ToastrService,
+      private companyService: CompanyService,
+      private http: HttpClient,
+      private router: Router,
+      private sheetsService: GoogleSheetsService,
+      public gAuthService: GoogleAuthService,
+      private permissionService: PermissionService
+
+    ) {
+
+
+  }
+
+  getSelectedLanguage(message: string) {
+    this.selectedLanguage = message;
+  }
+
+  ngOnInit(): void {
+    if (localStorage.getItem('columnControl')) this.columnControl = JSON.parse(localStorage.getItem('columnControl'));
+    if (localStorage.getItem('sortableColumns')) this.sortableColumns = JSON.parse(localStorage.getItem('sortableColumns'));
+    if (localStorage.getItem('searchableColumns')) this.searchableColumns = JSON.parse(localStorage.getItem('searchableColumns'));
+    
+    // setTimeout(_ => {
+      this.isLoading = false;
+    // }, 2000);
+    this.gAuthService.isLoggedIn$.subscribe(
+      (loggedIn) => {
+       this.checkAuthStatus();
+      }
+    );
+  }
+
+  // toggleLanguage() {
+  //   this.selectedLanguage = this.selectedLanguage === 'English' ? 'Gujarati' : 'English';
+  // }
+
+  // setLanguage(language: string) {
+  //   this.selectedLanguage = language;
+  // }
+  
+  isAdmin() {
+    let email = localStorage.getItem('email');
+    if (email.includes('ajay')) {
+      return true;
+    } else {
+      return false
+    }
+  }
+
+  manageColumn() {
+    const today = new Date();
+    let currentYear = today.getFullYear();
+
+    // console.log('userHeader:', this.userHeader);
+    let baseConfig;
+    baseConfig = this.userHeader.reduce((config, column) => {
+      config[column] = column === 'MemberName' ? true : false;
+      return config;
+    }, {});
+
+    this.columnControl = Object.assign({}, baseConfig);
+    this.sortableColumns = Object.assign({}, baseConfig);
+    this.searchableColumns = Object.assign({}, baseConfig);
+
+    this.columnControl['MemberName'] = true;
+    this.sortableColumns['MemberName'] = true;
+    this.searchableColumns['MemberName'] = false;
+
+    // keep current year active/visible
+    if (currentYear) {
+      this.columnControl[currentYear-2] = true;
+      this.columnControl[currentYear-1] = true;
+      this.columnControl[currentYear] = true;
+      this.sortableColumns[currentYear-2] = true;
+      this.sortableColumns[currentYear-1] = true;
+      this.sortableColumns[currentYear] = true;
+    }
+    this.preserveState();
+    // console.log('searchableColumns:', this.searchableColumns);
+    // localStorage.setItem('srch', JSON.stringify(this.searchableColumns));
+    // console.log('baseConfig:', baseConfig);
+  }
+
+  preserveState() {
+    localStorage.setItem('columnControl', JSON.stringify(this.columnControl));
+    localStorage.setItem('sortableColumns', JSON.stringify(this.sortableColumns));
+    localStorage.setItem('searchableColumns', JSON.stringify(this.searchableColumns));
+  }
+  
+  checkAuthStatus() {
+    if(this.gAuthService.getToken) {
+      console.log('user logged in fetching sheet data');
+      this.fetchSheetData('sheet1');
+      // this.fetchGujSheetData('sheet2');
+      this.isAdmin();
+    } else {
+      console.log('user --not---- logged in');
+      }
+  }
+
+  enableSearch() {
+    this.isSearchActivate = !this.isSearchActivate;
+    this.resetSearch();
+  }
+
+  manageSearch() {
+    this.isSearchActivate = false;
+    var allTrue = Object.keys(this.searchableColumns).filter((k) => {
+      // console.log(this.searchableColumns[k], k)
+      if (this.searchableColumns[k] === true) {
+        if (this.columnControl[k] === true) {
+          // console.log('There is true value:', k);
+          this.isSearchActivate = true;
+          return k;
+        }
+      }
+      return false;
+    });
+    if (!allTrue.length) this.resetSearch();
+  }
+
+  checkTogglesState() {
+    let view = localStorage.getItem('columnControl') == JSON.stringify(this.columnControl);
+    let sort = localStorage.getItem('sortableColumns') == JSON.stringify(this.sortableColumns);
+    let search = localStorage.getItem('searchableColumns') == JSON.stringify(this.searchableColumns);
+    if (view && sort && search) return true;
+    else return false;
+  }
+
+  fetchSheetData(sheetname) {
+    this.sheetsService.getSheetData(sheetname).subscribe({
+      next: (res: any) => {
+        if (res) {
+          this.userHeader = res.values[0] || [];
+          this.userArray = res.values.slice(1) || [];
+          this.sheetsService.userData = res.values;
+          // console.log('Fetched Data:', res, this.userArray, this.userHeader);
+          // this.userArray = res.values || [];
+          this.TotalCount = res.values.lenght;
+
+          // Initialize search values for each column
+          this.userHeader.forEach(header => {
+            this.searchValues[header] = '';
+          });
+          if (!localStorage.getItem('columnControl') || this.checkTogglesState()) {
+            this.manageColumn();
+          }
+          this.yearColumnHeader = this.sheetsService.userData[0].slice(this.nonYearColumnCount).filter(ud => {
+            return ud;
+          });
+        }
+      },
+      error: (error) => {
+        this.toastr.error('Error fetching sheet data:', error);
+        this.openVerticallyCentered(this.sessionTemplate);
+        // alert('user logout');
+      }
+    });
+  }
+
+  fetchGujSheetData(sheetname) {
+    this.sheetsService.getSheetData(sheetname).subscribe({
+      next: (res: any) => {
+        if (res) {
+          // this.userHeader = res.values[0] || [];
+          this.gujUserArray = res.values.slice(1) || [];
+          // this.sheetsService.userData = res.values;
+          // console.log('Fetched Data:', res);
+          // this.userArray = res.values || [];
+          this.TotalCount = res.values.lenght;
+        }
+      },
+      error: (error) => {
+        this.toastr.error('Error fetching sheet data:', error);
+        this.openVerticallyCentered(this.sessionTemplate);
+        // alert('user logout');
+      }
+    });
+  }
+
+  hasPermission(modules,accestype): boolean {
+    return this.permissionService.hasPermission(modules,accestype);
+  }
+  // onTableDataChange(event: any) {
+  //   this.currentPage = event;
+  //   this.isLoading = true;
+  //   this.filterUsers();
+  // }
+
+  // onTableSizeChange(event: any): void {
+  //   this.isLoading = true;
+  //   this.itemsPerPage = event.target.value;
+  //   this.currentPage = 1;
+  //   this.filterUsers();
+
+  // }
+
+  // getUsers(page?: number, limit?: number): void {
+    
+  //   this.userService.getUsers(page, limit).subscribe({
+  //     next: (res: any) => {
+  //       if (res.success === 1) {
+  //         this.userArray = res.data.users || [];
+  //         this.TotalCount = res.data.totalCount;
+  //       }
+  //     },
+  //     error: (error) => {
+  //       this.toastr.error(error.error.message);
+  //     }
+  //   });
+  // }
+
+  // getLocations(): void {
+  //   this.userService.getLocations().subscribe({
+  //     next: (res: any) => {
+  //       if (res.success === 1) {
+  //         this.locations = (res.data || []).filter(x => x != null);
+  //       } else {
+  //         this.toastr.error(res.error.message);
+  //       }
+  //     },
+  //     error: (error) => {
+  //       this.toastr.error(error.error.message);
+  //     }
+  //   });
+  // }
+
+  // getCompanyList(): void {
+  //   this.companyService.getCompanyList().subscribe({
+  //     next: (res: any) => {
+  //       if (res.success === 1) {
+  //         this.companyNamesObj = res.data || [];
+  //       } else {
+  //         this.toastr.error(res.error.message);
+  //       }
+  //     },
+  //     error: (error) => {
+  //       this.toastr.error(error.error.error);
+  //     }
+  //   });
+  // }
+  edituser(userdata: any, template: TemplateRef<any>) {
+    this.edituserId = userdata[0];
+    // this.companyId = userdata.company_id;
+    this.openVerticallyCentered(template)
+  }
+
+  editReceiptNumber(user, colId, rowId, content: TemplateRef<any>) {
+    if (colId < this.nonYearColumnCount) return;
+    this.receiptEditData = {
+      user: user,
+      headerEdit: this.userHeader[colId],
+      cellValue: user[colId],
+      colId: colId,
+      rowId: rowId 
+    }
+    console.log('cellId',user, this.userHeader[colId],user[colId], colId, rowId);
+    // this.deletedUserId = userId;
+    // user[colId] = '8888';
+    // console.log('after edit',user, this.userHeader[colId],user[colId], colId, rowId);
+    this.modelRef = this.modalService.open(content, { centered: true })
+  }
+
+  async saveReceiptData() {
+    this.isLoading = true;
+    this.receiptEditData.user[this.receiptEditData.colId] = this.receiptEditData.cellValue == null ? 'N/A' : 0;
+    console.log('receiptEditData: ', this.receiptEditData);
+    // console.log('updated user is: ', this.receiptEditData.user);
+    // update sheet data
+    let rawAddress = parseInt(this.receiptEditData.user[0]) + 1;
+    await this.updateSheetData('A'+rawAddress, this.receiptEditData.user);
+    // clear variables
+    Object.keys(this.receiptEditData).forEach(key => {
+      delete this.receiptEditData[key];
+    })
+    // console.log('after cleaer is: ', this.receiptEditData);
+    // fetch sheet data
+    await this.fetchSheetData('sheet1');
+    this.isLoading = false;
+    this.modelRef.dismiss();
+
+  }
+
+
+  async updateSheetData(rowAddress,userData) {
+    try {
+        const response = await lastValueFrom(this.sheetsService.updateSheetData('Sheet1', rowAddress, [userData]));
+        console.log('Sheet updated successfully:', response);
+        this.toastr.success('User Updated successfully!', 'Success');
+      } catch (error) {
+        console.error('Error updating sheet data:', error);
+        throw error;
+      }
+  }
+
+  closeModal() {
+    this.edituserId = undefined;
+    this.modelRef.dismiss();
+    this.imageUploadstatus = false;
+    this.selectedFile = null;
+    // this.getLocations();
+    this.filterUsers();
+    this.checkAuthStatus();
+
+  }
+  ontryagain(){
+    this.imageUploadstatus = false;
+    this.selectedFile = null;
+  }
+  openVerticallyCentered(content: TemplateRef<any>) {
+    this.modelRef = this.modalService.open(content, { centered: true })
+  }
+
+  openVerticallyCentered1(Id: any, content: TemplateRef<any>) {
+    this.edituserId = Id;
+    this.isLoading = true;
+    setTimeout(() => {
+      this.modelRef = this.modalService.open(content, { centered: true });
+      this.isLoading = false;
+    }, 2000);
+  }
+
+  openVerticallyCentered2(userId: string, content: TemplateRef<any>) {
+    this.deletedUserId = userId;
+    this.modelRef = this.modalService.open(content, { centered: true })
+  }
+
+  deleteUser(userId: string): void {
+    console.log('delete user: ', userId);
+    this.isDeleteButtonClicked = true;
+    // this.userService.deleteUser(userId).subscribe({
+    //   next: (response: any) => {
+    //     if (response.success === 1) {
+    //       this.toastr.success(response.message, 'Success');
+    //       setTimeout(() => {
+    //         this.isLoading = false;
+    //       }, 1000);
+    //       this.filterUsers();
+    //       this.modelRef.dismiss();
+    //     } else {
+    //       this.toastr.error(response.error.message);
+    //     }
+    //     this.isDeleteButtonClicked = false;
+    //   },
+    //   error: (error) => {
+    //     this.isDeleteButtonClicked = false;
+    //     this.toastr.error(error.error.error);
+    //   }
+    // });
+  }
+
+
+
+  filterUsers() {
+    this.Objectfilter['page'] = this.currentPage;
+    this.Objectfilter['limit'] = this.itemsPerPage;
+    this.Objectfilter['search'] = this.search;
+    // this.userService.filterUsers(this.Objectfilter).subscribe({
+    //   next: (res: any) => {
+    //     if (res.success === 1) {
+    //       setTimeout(() => {
+    //         this.isLoading = false;
+    //       }, 1000);
+    //       this.userArray = res.data.users || [];
+    //       this.TotalCount = res.data.totalCount;
+    //       this.totalpages = res.data.totalpages;
+    //     } else {
+    //       this.toastr.error(res.message);
+    //       this.isLoading = false;
+    //     }
+    //   },
+    //   error: (error) => {
+    //     this.toastr.error(error.error.error);
+    //     this.isLoading = false;
+    //   }
+    // });
+  }
+
+  // filterUserBySearch() {
+  //   this.currentPage =1;
+  //   this.filterUsers();
+  // }
+
+  // onLocationChange(location: string) {
+  //   this.Objectfilter['location'] = location;
+  //   this.Objectfilter['page'] =1;
+  //   this.currentPage =1
+  //   this.filterUsers();
+  // }
+
+  // onCompanyChange(comObj: any) {
+  //   this.Objectfilter['company_id'] = comObj ? comObj._id:null;
+  //   this.Objectfilter['page'] =1;
+  //   this.currentPage =1
+  //   this.filterUsers();
+  // };
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+    if (this.selectedFile) {
+      const validFileTypes = ['text/csv', 'application/vnd.ms-excel']; // Mime types for CSV files
+
+      if (!validFileTypes.includes(this.selectedFile.type)) {
+        this.toastr.error('Only CSV files are allowed.' );
+        event.target.value = ''; // Reset the file input
+        this.activeuploadbutton = false;
+        this.fileName = '';
+        return;
+      }
+      this.activeuploadbutton = true;
+      this.imageUploadstatus = true;
+      this.fileName = this.selectedFile.name;
+    }
+  };
+
+  // async exportUser() {
+  //   if (!this.selectedFile) {
+  //     console.error('No file selected.');
+  //     this.toastr.error('Please select a CSV file.');
+  //     return;
+  //   }
+
+  //   this.isImportButtonClicked = true;
+
+  //   this.userService.importUsers(this.selectedFile).subscribe({
+  //     next: (res: any) => {
+  //       if (res.success === 1) {
+  //         this.toastr.success(res.message, 'Success');
+  //         this.getUsers(this.currentPage, this.itemsPerPage);
+  //         this.closeModal();
+  //         this.isImportButtonClicked = false;
+  //       } else {
+  //         this.toastr.error(res.error.message);
+  //         this.isImportButtonClicked = false;
+  //       }
+  //     },
+  //     error: (error) => {
+  //       this.toastr.error(error.error.error);
+  //       this.isImportButtonClicked = false;
+  //     }
+  //   });
+  // }
+
+  // onstatuschange(status: string) {
+  //   this.Objectfilter['status'] = status ? status["key"] : null;
+  //   this.Objectfilter['page'] =1;
+  //   this.currentPage =1
+  //   this.filterUsers();
+  // }
+  // onsort(){
+  //   this.sortDirection = this.sortDirection === 'asc' ? 'asc' :'desc';
+  //   this.Objectfilter['sort'] =this.sortDirection;
+  //   this.sortDirection = this.sortDirection === 'asc' ? 'desc' :'asc';
+  //   this.userArray.reverse();
+  //   // this.filterUsers();
+  // }
+
+  // calculateIndex(indexOnPage: number): number {
+  //   return (this.currentPage - 1) * this.itemsPerPage + indexOnPage + 1;
+  // }
+  // downloadFile() {
+  //   const url = '../../../assets/empfffcsv.csv'; // Replace with your server endpoint for downloading the file
+  //   this.http.get(url, { responseType: 'blob' }).subscribe((data: any) => {
+  //     const blob = new Blob([data], { type: 'application/octet-stream' });
+  //     const link = document.createElement('a');
+  //     link.href = window.URL.createObjectURL(blob);
+  //     link.download = 'demo.csv'; // Change the file name as needed
+  //     link.click();
+  //   });
+  // }
+  // clearFilters() {
+  //   this.search = '';
+  //   this.selectedCompany = null;
+  //   this.selectedLocation = null;
+  //   this.selectedStatus = null;
+  //   this.Objectfilter = {};
+  //   this.currentPage = 1;
+  //   this.itemsPerPage = 10;
+  //   this.getUsers(this.currentPage, this.itemsPerPage);
+  // }
+
+  public async logout(): Promise<void> {
+    this.gAuthService.logout();
+    localStorage.clear();
+    this.modelRef.dismiss();
+    window.location.reload();
+  }
+
+  selectDeselectCube() {
+    let setToggleValue = false;
+    if(this.columnControlSelectAll && this.sortableColumnsSelectAll && this.searchableColumnsSelectAll) {
+      setToggleValue = true;
+    }
+    this.columnControlSelectAll = !setToggleValue; 
+    this.sortableColumnsSelectAll = !setToggleValue;  
+    this.searchableColumnsSelectAll = !setToggleValue; 
+    this.selectDeselectAll(event, 'columnControl');
+    this.selectDeselectAll(event, 'sortableColumns');
+    this.selectDeselectAll(event, 'searchableColumns');
+  }
+
+  public selectDeselectAll(event: Event, controls: string) {
+    // const input = event.target as HTMLInputElement;  // Type assertion here
+    // const isChecked = input.checked;
+    // console.log('event:',event);
+    for (const key in this[controls]) {
+      if (key != 'MemberName' || (key == 'MemberName' && controls == 'searchableColumns')) {
+        this[controls][key] = this[controls+'SelectAll'];
+      }
+    }
+    if (controls == 'columnControl' || controls == 'searchableColumns') {
+      this.manageSearch();
+    }
+    // this.preserveState();
+  }
+
+  selectDeselectRow(row) {
+    let setToggleValue = false;
+    if(this.columnControl[row] && this.sortableColumns[row] && this.searchableColumns[row]) {
+      setToggleValue = true;
+    }
+    this.columnControl[row] = !setToggleValue;
+    this.sortableColumns[row] = !setToggleValue;
+    this.searchableColumns[row] = !setToggleValue;
+    this.manageSearch();
+    // this.preserveState();
+  }
+
+  sortTable(column: string) {
+    if (!this.sortableColumns[column]) {
+      return;
+    }
+    const columnIndex = this.userHeader.indexOf(column);
+
+    if (this.sortColumn === column) {
+      // Toggle sort direction
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Set new column and default to ascending
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    // Perform the sort
+    this.userArray.sort((a, b) => {
+      if (column === 'MemberName') {
+        // Composite sorting for MemberName
+        const fullNameA = `${a[this.userHeader.indexOf("Firstname")]} ${a[this.userHeader.indexOf('Middlename')]} ${a[this.userHeader.indexOf('Lastname')]}`
+          .trim()
+          .toLowerCase();
+        const fullNameB = `${b[this.userHeader.indexOf('Firstname')]} ${b[this.userHeader.indexOf('Middlename')]} ${b[this.userHeader.indexOf('Lastname')]}`
+          .trim()
+          .toLowerCase();
+        return this.compareValues(fullNameA, fullNameB);
+      } else {
+        return this.compareValues(a[columnIndex], b[columnIndex]);
+      }
+    });
+  }
+
+  compareValues(a: string | undefined, b: string | undefined): number {
+    const direction = this.sortDirection === 'asc' ? 1 : -1;
+
+    // Handle empty cells
+    if (!a && !b) return 0;
+    if (!a) return 1 * direction;
+    if (!b) return -1 * direction;
+
+    // Convert to lowercase for case-insensitive sorting
+    const lowerA = a.toString().toLowerCase();
+    const lowerB = b.toString().toLowerCase();
+
+    // Handle numeric sorting if both are numbers
+    const numA = parseFloat(lowerA);
+    const numB = parseFloat(lowerB);
+    if (!isNaN(numA) && !isNaN(numB)) {
+      return (numA - numB) * direction;
+    }
+
+    // Default to string comparison
+    return lowerA.localeCompare(lowerB) * direction;
+  }
+
+  filterUserBySearch() {
+    const query = this.search.toLowerCase();
+    this.activeSearch = 'combine';
+
+    // Reset the table if the search value is empty
+    if (!query) {
+      this.resetSearch();
+      return;
+    }
+
+    this.userArray = this.sheetsService.userData.slice(1).filter(user => 
+      user[1].toLowerCase().includes(query) ||
+      user[2].toLowerCase().includes(query) ||
+      user[3].toLowerCase().includes(query) ||
+      user[4].toLowerCase().includes(query) ||
+      user[5].toLowerCase().includes(query) ||
+      user[7].toLowerCase().includes(query)
+    );
+  }
+
+  onSearch(column: string, event: Event) {
+    const value = (event.target as HTMLInputElement).value.trim().toLowerCase(); // Cast to HTMLInputElement
+    // Disable other search boxes and wipe their values
+    this.userHeader.forEach(header => {
+      if (header !== column) {
+        this.searchValues[header] = '';
+      }
+    });
+  
+    this.activeSearch = column;
+  
+    // Reset the table if the search value is empty
+    if (!value) {
+      this.resetSearch();
+      return;
+    }
+    if (column === 'MemberName') {
+      // Special handling for "MemberName"
+      const firstNameIndex = this.userHeader.indexOf('Firstname');
+      const middleNameIndex = this.userHeader.indexOf('Middlename');
+      const lastNameIndex = this.userHeader.indexOf('Lastname');
+  
+      if (firstNameIndex === -1 || middleNameIndex === -1 || lastNameIndex === -1) {
+        console.error('One or more indices for MemberName are missing in userHeader');
+        return;
+      }
+  
+      this.userArray = this.sheetsService.userData.slice(1).filter(row => {
+        const fullName = `${row[firstNameIndex] || ''} ${row[middleNameIndex] || ''} ${row[lastNameIndex] || ''}`.trim().toLowerCase();
+        return fullName.includes(value);
+      });
+    } else {
+      // General search logic
+      const columnIndex = this.userHeader.indexOf(column);
+      if (columnIndex === -1) {
+        console.error(`Column "${column}" not found in userHeader`);
+        return;
+      }
+  
+      this.userArray = this.sheetsService.userData.slice(1).filter(row => {
+        const cellValue = (row[columnIndex] || '').toLowerCase();
+        return cellValue.includes(value);
+      });
+    }
+  }
+  
+  resetSearch() {
+    this.userArray = [...this.sheetsService.userData.slice(1)];
+    this.activeSearch = null;
+  }
+
+  generateData(hdr, data) {
+    var result = [];
+    var printData = {};
+    for (var i = 0; i < data.length; i++) {
+      printData['#'] = (i + 1).toString();
+      printData['Member Name'] = data[i][1] + ' ' + data[i][2] + ' ' + data[i][3];
+      printData['2022'] = data[i][this.nonYearColumnCount + 0] || 'N/A';
+      printData['2023'] = data[i][this.nonYearColumnCount + 1] || 'N/A';
+      printData['2024'] = data[i][this.nonYearColumnCount + 2] || 'N/A';
+      printData['2025'] = data[i][this.nonYearColumnCount + 3] || 'N/A';
+      printData['2026'] = data[i][this.nonYearColumnCount + 4] || 'N/A';
+      result.push(Object.assign({}, printData));
+    }
+
+    return result;
+  };
+  
+  createHeaders(keys) {
+    var result = [];
+
+    for (var i = 0; i < keys.length; i += 1) {
+      result.push({
+        id: keys[i],
+        name: keys[i],
+        prompt: keys[i],
+        width: 65,
+        // align: "center",
+        padding: 0
+      });
+    }
+    return result;
+  }
+  
+  downloadAsPDF() {
+    var hdr = [...[
+        "#",
+        "Member Name",
+      ]
+      , ...this.yearColumnHeader
+    ];
+  // console.log('----Object.keys(this.columnControl):', Object.keys(this.columnControl));
+    // var hdr: any; 
+    // var headerConfig: any; 
+    // headerConfig = Object.keys(this.columnControl).map(column => {
+    //   // let width = column === 'ID' ? 50 : 100; // Example: Set different widths for "ID"
+    //   // return { name: column, width };
+    //   let hObj: any;
+    //   if (this.columnControl[column]) {
+    //     hObj = {
+    //       'id': column,
+    //       'name': column,
+    //       'prompt': column,
+    //       'width': 65,
+    //       // 'align': 'center',
+    //       'padding': 0
+    //     };
+    //     // if (column == 'Member Name') {
+    //     //   hObj['width'] = 0;
+    //     // }
+    //   }
+    //   return hObj;
+    // });
+    // this.userHeader.forEach((h) => {
+    //   let hObj = {
+    //     'id': h,
+    //     'name': h,
+    //     'prompt': h,
+    //     'width': 65,
+    //     'align': 'center',
+    //     'padding': 0
+    //   };
+    //   headerConfig.push(hObj);
+    // });
+// return;
+  
+    var headers = this.createHeaders(hdr);
+    
+    var doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
+    doc.setFontSize(28);
+    doc.setFont("helvetica", "bold");
+    doc.text("MvAnand", 105, 15,  null, "center");
+    // doc.text("This is centred text.", 105, 80, null, null, "center");
+    doc.table(10, 20, this.generateData(hdr,this.userArray), headers, { autoSize: true });
+    doc.save('FilteredTable.pdf');
+  }
+  
+  
+
+
+  public downloadAsPDF1(): void {
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      putOnlyUsedFonts: true,
+      // unit: 'px',
+      // format: 'a4',
+    });
+  
+    const pdfTable = this.pdfTable.nativeElement;
+  
+    // Clone table and make it visible
+    const clonedTable = pdfTable.cloneNode(true) as HTMLElement;
+    clonedTable.style.overflow = 'visible';
+    clonedTable.style.maxHeight = 'none';
+    clonedTable.style.display = 'block'; // Ensure visibility
+    document.body.appendChild(clonedTable);
+  
+    doc.html(clonedTable, {
+      callback: (doc) => {
+        doc.save('FilteredTable.pdf');
+        document.body.removeChild(clonedTable); // Clean up
+      },
+      x: 15,
+      y: 15,
+      html2canvas: {
+        scale: 0.25, // High resolution
+        useCORS: true, // Handle cross-origin resources
+      },
+    });
+  }
+  
+
+}

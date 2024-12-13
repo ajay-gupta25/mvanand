@@ -1,0 +1,36 @@
+<div class="modal_box">
+    <div class="modal-header">
+        <h4 class="modal-title">User Detail</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)=closeModal() ><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+        <div class="user_detail_wrap">
+            <div class="user_detail_img">
+                <div class="adduser_image mb-4">
+                    <img *ngIf="imageUrl" [src]="imageUrl" alt="">
+    <img *ngIf="!imageUrl" src="../../../assets/img/user-image.png" alt="Default Image">
+                </div>
+                <p class="primary-color my-3">Employee ID:{{userdetails?.emp_id || 'N/A'}}</p>
+                <p class="success-color">Status:{{userdetails?.status || 'N/A'}}</p>
+            </div>
+            <div class="user_detail_desc">
+                <ul class="p-0 m-0">
+                    <li><span class="user_detail_label">Name</span><span class="user_detail_value">{{userdetails?.firstName || 'N/A'}} {{userdetails?.lastName || 'N/A'}}</span></li>
+                    <li><span class="user_detail_label">Email</span><span class="user_detail_value">{{userdetails?.email || 'N/A'}}</span></li>
+                    <li><span class="user_detail_label">Mobile number</span><span class="user_detail_value">{{userdetails?.mobile_no || 'N/A'}}</span></li>
+                    <li><span class="user_detail_label">Location</span><span class="user_detail_value">{{userdetails?.location || 'N/A'}}</span></li>
+                    <li><span class="user_detail_label">Company </span><span class="user_detail_value">{{userdetails?.company || 'N/A'}}</span></li>
+                    <li><span class="user_detail_label">Organization</span><span class="user_detail_value">{{userdetails?.organization || 'N/A'}}</span></li>
+                    <li><span class="user_detail_label">User role</span><span class="user_detail_value">{{userdetails?.rolepermission || 'N/A'}}</span></li>
+                    <li><span class="user_detail_label">Department</span><span class="user_detail_value">{{userdetails?.department || 'N/A'}}</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer btn_group justify-content-start pt-3">
+        <button type="button" class="btn btn-primary" (click)="edituser(userdetails,create_user)" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Edit user</button>
+    </div>
+</div>
+<ng-template #create_user let-modal>
+    <app-add-users (onModalClose)="modal.dismiss('Cross click')" [userId]="edituserId" [companyId]="companyId"></app-add-users>
+  </ng-template>

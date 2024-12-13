@@ -1,0 +1,474 @@
+<app-layout-header (messageEvent)="getSelectedLanguage($event)"></app-layout-header>
+<!-- <p>{{ selectedLanguage }}</p> -->
+<app-page-layout> 
+    <div class="main_content">
+        <app-progress-bar *ngIf="isLoading"></app-progress-bar>
+        <ng-container *ngIf="!this.gAuthService.identityClaims">
+            <!-- <button type="button" class="btn btn-primary" (click)="login()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Login User</button> -->
+            <!-- <button type="button" class="btn btn-primary" (click)="login1()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Login 1</button> -->
+                    <!-- <button type="button" class="btn btn-primary" (click)="config()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>config</button> -->
+                    <!-- <button type="button" class="btn btn-primary" (click)="fetchSheetData('sheet1')" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>sheet</button> -->
+        </ng-container>
+        <ng-container *ngIf="this.gAuthService.identityClaims">
+            <!-- <app-settings></app-settings> -->
+            <div class="datatable_header">
+                <div class="page_header_left">
+                    <!-- <div class="datatable_search">
+                        <label for="">Search: </label>
+                        <input type="search" placeholder="Search By Name & Email " class="search_field form-control" [(ngModel)]="search"
+                            (input)="filterUserBySearch()">
+                    </div> -->
+                    <!-- <div class="datatable_filter">
+                        <label for="">Company: </label>
+                        <ng-select [items]="companyNamesObj" bindLabel="company_name" placeholder="Select Company" [(ngModel)]="selectedCompany" (change)="onCompanyChange($event)">
+                        </ng-select>
+                    </div>
+                    <div class="datatable_filter">
+                        <label for="">Location: </label>
+                        <ng-select class="col-md-3" [items]="locations" placeholder="Select Location" bindLabel="location" [(ngModel)]="selectedLocation"
+                            (change)="onLocationChange($event)">
+                        </ng-select>
+                    </div>
+                    <div class="datatable_filter">
+                        <label for="">Status: </label>
+                        <ng-select [items]="statusArray" placeholder="Select Status" bindLabel="key" (change)="onstatuschange($event)" [(ngModel)]="selectedStatus">
+                        </ng-select>
+                    </div> -->
+                    <!-- <button type="button" class="btn btn-secondary px-4" (click)="clearFilters()"
+                  data-bs-toggle="modal" data-bs-target="#staticBackdrop">Clear</button> -->
+                </div>
+
+                <div class="dropdown" ngbDropdown>
+                    <a
+                      class="dropdown-toggle btn btn-secondary"
+                      ngbDropdownToggle
+                      id="ColumnDropdown"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i class="iconsax" icon-name="setting-3"></i> Manage Columns
+                    </a>
+                    <div
+                      class="dropdown-menu CustomColumn_Dropdown CustomColumn_Dropdown_combined"
+                      ngbDropdownMenu
+                      aria-labelledby="ColumnDropdown"
+                    >
+                      <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>Header</th>
+                            <th><i class="iconsax" icon-name="eye"></i> View</th>
+                            <th><i class="iconsax" icon-name="sort"></i> Sort</th>
+                            <th><i class="iconsax" icon-name="search-normal-2"></i> Search</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                                <label class="column_SelectAll" (click)="selectDeselectCube()">Select All</label>
+                            </td>
+                            <td>
+                                <div ngbTooltip="View" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" id="view_SelectAll" [(ngModel)]="columnControlSelectAll" (ngModelChange)="selectDeselectAll($event, 'columnControl');manageSearch()" >
+                                    <label for="view_SelectAll" class="custom_column_SelectAll"></label>
+                                </div>
+                            </td>
+                            <td>
+                                <div ngbTooltip="Sort" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" id="sort_SelectAll" [(ngModel)]="sortableColumnsSelectAll" (ngModelChange)="selectDeselectAll($event, 'sortableColumns')" >
+                                    <label for="sort_SelectAll" class="custom_column_SelectAll"></label>
+                                </div>
+                            </td>
+                            <td>
+                                <div ngbTooltip="Search" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" id="search_SelectAll" [(ngModel)]="searchableColumnsSelectAll" (ngModelChange)="selectDeselectAll($event, 'searchableColumns');manageSearch()" >
+                                    <label for="search_SelectAll" class="custom_column_SelectAll"></label>
+                                </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                                <label>Member Name</label>
+                            </td>
+                            <td>
+                                <div ngbTooltip="View" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" [id]="'view_MemberName'" [disabled]="true" [(ngModel)]="columnControl['MemberName']" (ngModelChange)="manageSearch()">
+                                    <label [for]="'view_MemberName'" class=""></label>
+                                </div>
+                            </td>
+                            <td>
+                                <div ngbTooltip="Sort" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" [id]="'sort_MemberName'" [disabled]="true" [(ngModel)]="sortableColumns['MemberName']">
+                                    <label [for]="'sort_MemberName'" class=""></label>
+                                </div>                              
+                            </td>
+                            <td>
+                                <div ngbTooltip="Search" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" [id]="'search_MemberName'" [(ngModel)]="searchableColumns['MemberName']" (ngModelChange)="manageSearch()" >
+                                    <label [for]="'search_MemberName'" class=""></label>
+                                </div> 
+                            </td>
+                          </tr>
+                          <tr *ngFor="let header of userHeader">
+                            <td>
+                                <label (click)="selectDeselectRow(header)">{{ header }}</label>
+                            </td>
+                            <td>
+                                <div ngbTooltip="View" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" [id]="'view_' + header" [(ngModel)]="columnControl[header]" (ngModelChange)="manageSearch()">
+                                    <label [for]="'view_' + header" class=""></label>
+                                </div>
+                            </td>
+                            <td>
+                                <div ngbTooltip="Sort" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" [id]="'sort_' + header" [(ngModel)]="sortableColumns[header]">
+                                    <label [for]="'sort_' + header" class=""></label>
+                                </div>                              
+                            </td>
+                            <td>
+                                <div ngbTooltip="Search" placement="top" class="role_per_checkbox">
+                                    <input type="checkbox" [id]="'search_' + header" [(ngModel)]="searchableColumns[header]" (ngModelChange)="manageSearch()">
+                                    <label [for]="'search_' + header" class=""></label>
+                                </div> 
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  
+                
+                <div class="page_header_right btn_group">
+                    <!-- <div class="dropdown" ngbDropdown>
+                        <a class="dropdown-toggle btn btn-secondary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="iconsax" icon-name="translate"></i>
+                        </a>
+                        <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
+                            <h6>Select Language</h6>
+                            <ul>
+                                <li *ngFor="let lang of languages; let i=index">
+                                    <div class="role_per_checkbox">
+                                        <input type="checkbox" [id]="lang" [(ngModel)]="languageControl[lang]">
+                                        <label [for]="lang" class="">{{lang}}</label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div> -->
+                    <!-- <div class="dropdown" ngbDropdown>
+                        <a class="dropdown-toggle btn btn-secondary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="iconsax" icon-name="eye"></i>View
+                        </a>
+                        <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
+                            <h6>Select Column</h6>
+                            <ul>
+                                <li>
+                                    <div class="role_per_checkbox">
+                                        <input type="checkbox" id="custom_column_SelectAll" (change)="selectDeselectAll($event, 'columnControl')" >
+                                        <label for="custom_column_SelectAll" class="custom_column_SelectAll">Select All</label>
+                                    </div>
+                                </li>
+                                <li *ngFor="let header of userHeader; let i=index">
+                                    <div class="role_per_checkbox">
+                                        <input type="checkbox" [id]="'custom_column_'+header" [(ngModel)]="columnControl[header]">
+                                        <label [for]="'custom_column_'+header" class="">{{header}}</label>
+                                    </div>
+                                </li>
+                            </ul>
+                            <!-- <h6>Custom Metadata</h6>
+                            <ul>
+                                <li *ngFor="let item of metaData; index as i">
+                                    <div class="role_per_checkbox">
+                                        <input type="checkbox" id="{{item}}" [(ngModel)]="columnControl[item]" formcontrolname="'custom'+i">
+                                        <label for="{{item}}" class="">{{item}}</label>
+                                    </div>
+                                </li>
+                            </ul> --
+                        </div>
+                    </div> -->
+                    <!-- <div class="dropdown" ngbDropdown>
+                        <a class="dropdown-toggle btn btn-secondary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="iconsax" icon-name="search-normal-2"></i>Search
+                        </a>
+                        <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
+                            <h6>Select Column</h6>
+                            <ul>
+                                <li>
+                                    <div class="role_per_checkbox">
+                                        <input type="checkbox" id="column_search_SelectAll" (change)="selectDeselectAll($event, 'searchableColumns')" >
+                                        <label for="column_search_SelectAll" class="column_search_SelectAll">Select All</label>
+                                    </div>
+                                </li>
+                                <li *ngFor="let header of userHeader; let i=index">
+                                    <div class="role_per_checkbox">
+                                        <input type="checkbox" [id]="'column_search_'+header" [(ngModel)]="searchableColumns[header]">
+                                        <label [for]="'column_search_'+header" class="">{{header}}</label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div> -->
+                    <!-- <button type="button" class="btn btn-secondary" (click)="enableSearch()"><i class="iconsax" icon-name="search"></i>Search</button> -->
+                    <!-- <div class="dropdown" ngbDropdown>
+                        <a class="dropdown-toggle btn btn-secondary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="iconsax" icon-name="filter"></i>Sorting
+                        </a>
+                        <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
+                            <h6>Select Column</h6>
+                            <ul>
+                                <li>
+                                    <div class="role_per_checkbox">
+                                        <input type="checkbox" id="column_sorting_SelectAll" (change)="selectDeselectAll($event, 'sortableColumns')" >
+                                        <label for="column_sorting_SelectAll" class="column_sorting_electAll">Select All</label>
+                                    </div>
+                                </li>
+                                <li *ngFor="let header of userHeader; let i=index">
+                                    <div class="role_per_checkbox">
+                                        <input type="checkbox" [id]="'column_sorting_'+header" [(ngModel)]="sortableColumns[header]">
+                                        <label [for]="'column_sorting_'+header" class="">{{header}}</label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div> -->
+                    <!-- <button type="button" class="btn btn-secondary" (click)="openVerticallyCentered(import_popup)" 
+                        data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="download-1"></i>Import</button> -->
+                    <button type="button" class="btn btn-secondary" (click)="downloadAsPDF()" 
+                        data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="download-1"></i>Download</button>
+                    <!-- <button type="button" class="btn btn-secondary" (click)="downloadAsPDF1()" 
+                        data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="download-1"></i>Download1</button> -->
+                    <button type="button" class="btn btn-primary" (click)="openVerticallyCentered(create_user)"
+                        data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Create
+                        User</button>
+                    <!-- <button type="button" class="btn btn-primary" (click)="fetchSheetData('sheet1')" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>sheet</button> -->
+                    <!-- <div class="language-toggle">
+                        <span class="language-option" [class.active]="selectedLanguage === 'Gujarati'" (click)="setLanguage('Gujarati')"> Gujarati </span>
+                        <div class="toggle-switch" (click)="toggleLanguage()">
+                          <div class="toggle-thumb" [class.right]="selectedLanguage === 'English'"></div>
+                        </div>
+                        <span class="language-option" [class.active]="selectedLanguage === 'English'" (click)="setLanguage('English')"> English </span>
+                    </div> -->
+                </div>
+            </div>
+            <div>
+                <!-- {{ - userArray.length}} -->
+            </div>
+            <div class="main_datatable">
+                <div class="data_table">
+                    <div class="page-container">
+                    <div class="table-container">
+                        <table id="user_management_datatable" aria-label=" user Management Table" class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th *ngIf="sortField === 'emp_id' && columnControl[userHeader[0]]" (click)="sortTable(userHeader[0])">
+                                        <label>{{userHeader[0]}} <span *ngIf="sortableColumns[userHeader[0]]">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></label>
+                                    </th>
+                                    <th *ngIf="columnControl['MemberName']" (click)="sortTable('MemberName')">Member Name <span *ngIf="sortableColumns['MemberName']">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></th>
+                                    <ng-container *ngFor="let header of userHeader.slice(1); let i=index">
+                                        <th *ngIf="columnControl[header]" (click)="sortTable(header)">
+                                            <!-- <label *ngIf="i==0">{{ header }}</label> -->
+                                            <label>{{ header }} <span *ngIf="sortableColumns[header]">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></label>
+                                        </th>
+                                    </ng-container>
+                                    <th *ngIf="isAdmin()">Action</th>
+                                </tr>
+                                <tr *ngIf="isSearchActivate">
+                                    <th></th>
+                                    <th *ngIf="columnControl[userHeader[0]]">
+                                        <input *ngIf="searchableColumns[userHeader[0]] && columnControl[userHeader[0]]" type="search" [placeholder]="'Search ' + userHeader[0]" [value]="searchValues[userHeader[0]]" (input)="onSearch(userHeader[0], $event)" class="search_field form-control" [disabled]="activeSearch && activeSearch !== userHeader[0]"/>
+                                    </th>
+                                    <th *ngIf="columnControl['MemberName']">
+                                        <input *ngIf="searchableColumns['MemberName']"  type="search" [placeholder]="'Search Member'" (input)="onSearch('MemberName', $event)" [disabled]="activeSearch && activeSearch !== 'MemberName'" class="search_field form-control"/>
+                                    </th>
+                                    <ng-container *ngFor="let header of userHeader.slice(1); let i=index">
+                                        <th *ngIf="columnControl[header]">
+                                        <input *ngIf="searchableColumns[header] && columnControl[header]" type="search" [placeholder]="'Search ' + header" [value]="searchValues[header]" (input)="onSearch(header, $event)" [disabled]="activeSearch && activeSearch !== header" class="search_field form-control"/>
+                                        </th>
+                                    </ng-container>
+                                    <th *ngIf="isAdmin()"></th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="userArray?.length; else noData">
+                                <ng-container *ngFor="let user of userArray; let i=index">
+
+                                <tr>
+                                    <td>{{ i+1 }}</td>
+                                    <td *ngIf="columnControl[userHeader[0]]">{{ user[0] }}</td>
+                                    <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'English'"><label *ngIf="userArray[i]">{{ user[1] }} {{ user[2] }} {{ user[3] }}</label></td>
+                                    <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'Gujarati'"><label *ngIf="userArray[i]">{{ user[12] }} {{ user[13] }} {{ user[14] }}</label></td>
+                                    <ng-container *ngFor="let cell of user.slice(1); let j=index">
+                                        <td class="scrollable-td" *ngIf="columnControl[userHeader[j+1]]" (click)="editReceiptNumber(user, j+1, i+1, edit_yearData)"><label>{{ cell || 'N/A' }}</label></td>
+                                    </ng-container> 
+                                    <td *ngIf="isAdmin()">
+                                        <button type="button" class="edit_icon" (click)="edituser(user,create_user)"><i ngbTooltip="Edit" placement="top" class="fa-solid fa-pencil"></i></button> 
+                                        <button type="button" class="delete_icon" (click)="openVerticallyCentered2(user[0],delete_user)" data-bs-toggle="modal"data-bs-target="#staticBackdrop"><i ngbTooltip="Delete" placement="top" class="iconsax" icon-name="trash"></i></button>
+                                    </td>
+                                    <!-- <td>
+                                        <label ><button type="button" (click)="openVerticallyCentered1(user._id,user_detail)" data-bs-toggle="modal" data-bs-target="#staticBackdrop"> {{ user?.emp_id || 'N/A' }}</button></label>
+                                    </td> -->
+                                </tr>
+                                <!-- <tr>
+                                    <td>Gujju data</td>
+                                </tr> -->
+                            </ng-container>
+                            </tbody>
+                            <ng-template #noData>
+                                <tbody>
+                                <tr>
+                                    <td colspan="8" style="text-align: center;">No data available</td>
+                                </tr>
+                            </tbody>
+                            </ng-template>
+                
+                        </table>
+                    </div>                   
+                    </div>
+                </div>
+                <!-- <div class="datatable_footer d-flex align-content-center justify-content-between">
+                    <div class="view_records_by inline_label_field">
+                        <label for="">View records by:</label>
+                        <select class="form-control w-auto" [(ngModel)]="itemsPerPage" (change)="onTableSizeChange($event)">
+                          <option value=10>10</option>
+                          <option value=25>25</option>
+                          <option value=50>50</option>
+                          <option value=100>100</option>
+                        </select>
+                    </div>
+                    <div class="datatable_pagination">
+                        <ul class="pagination_nav m-0">
+                        </ul>
+                        <pagination-controls (pageChange)="onTableDataChange($event)"
+                        (pageSizeChange)="onTableSizeChange($event)"></pagination-controls>
+                    </div>
+                </div> -->
+            </div>
+        </ng-container>
+    </div>
+</app-page-layout>
+<ng-template #import_popup let-modal>
+    <div class="modal_box">
+        <div class="modal-header">
+            <h4 class="modal-title">Import bulk users to onboard in the platform</h4>
+            <p>All the fields should be matched as per the template*</p>
+            <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"><i
+                    class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="import_file mb-4">
+                <input type="file" id="import_csv_file" (change)="onFileSelected($event)">
+                <label for="import_csv_file">
+                    <div *ngIf="!imageUploadstatus">
+                        <img src="../../../assets/img/import-icon.png" alt="">
+
+                        <p>Please import the CSV file from device</p>
+                    </div>
+                    <div class="uploaded_filename" *ngIf="imageUploadstatus">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <p>{{fileName}}</p>
+                    </div>
+                </label>
+
+            </div>
+
+            <!-- <div class="inline_label_field">
+                <label for="">Don't have the template?</label>
+                <button class="btn btn-secondary"  (click)="downloadFile()">Download template</button>
+            </div> -->
+        </div>
+        <div class="modal-footer btn_group justify-content-start">
+            <button class="btn btn-secondary" (click)="ontryagain()">Try Again</button>
+            <!-- <button class="btn btn-primary" [disabled]="!activeuploadbutton || isImportButtonClicked" (click)="exportUser()">Import Users</button> -->
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #create_user let-modal>
+    <app-add-users (onModalClose)="closeModal()" [userId]="edituserId" [companyId]="companyId"></app-add-users>
+</ng-template>
+
+<ng-template #user_detail let-modal>
+    <app-view-users (onModalClose)="closeModal()" [userId]="edituserId"></app-view-users>
+</ng-template>
+
+
+<ng-template #edit_yearData let-modal>
+    <!-- <app-progress-bar *ngIf="isLoading"></app-progress-bar> -->
+    <div class="modal_box modal_sm">
+        <div class="modal-header">
+            <h4 class="modal-title">Edit User</h4>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"><i
+                    class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" *ngIf="receiptEditData.user">
+            <div class="delete_modal_msg">
+                <span>You are about to alter details of <b>{{receiptEditData?.headerEdit}}</b> for </span>
+                <label class="form-label">{{((receiptEditData?.user[1] || '') + ' ' + receiptEditData?.user[2] + ' ' + receiptEditData?.user[3] | titlecase) || ''}}</label>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <!-- First Name -->
+                    <div class="col-md-6 col-lg-4 form-group" *ngIf="receiptEditData.headerEdit">
+                        <label for="firstName" class="form-label"></label>
+                        <input type="number" class="form-control" placeholder="Enter first name" id="firstName" [(ngModel)]="receiptEditData.cellValue">
+                        <!-- <div class="invalid-feedback"
+                            *ngIf="Userform.controls.firstName.invalid && Userform.controls.firstName.touched">
+                            <ng-container *ngIf="Userform.controls.firstName.hasError('required')">
+                                {{ 'FIELD_REQUIRED' | translate }}
+                            </ng-container>
+                            <ng-container *ngIf="Userform.controls.firstName.hasError('maxlength')">
+                                {{ 'FIRSTNAME_MESSAGE' | translate }}
+                            </ng-container>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer btn_group justify-content-start">
+            <button (click)="modal.dismiss('Cross click')" type="button" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary" (click)="saveReceiptData()" [disabled]="isLoading">Save</button>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #delete_user let-modal>
+    <div class="modal_box modal_sm">
+        <div class="modal-header">
+            <h4 class="modal-title">Confirm Delete</h4>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"><i
+                    class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="delete_modal_msg">
+                <p>Are you sure want to delete selected user?</p>
+                <span>This action is permanent and cannot be undone</span>
+            </div>
+        </div>
+        <div class="modal-footer btn_group justify-content-start">
+            <button (click)="modal.dismiss('Cross click')" type="button" class="btn btn-secondary">No, Go Back</button>
+            <button type="submit" class="btn btn-primary" (click)="deleteUser(deletedUserId)" [disabled]="isDeleteButtonClicked">Delete</button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- User session timeout - Relogin -->
+<ng-template #session_expired let-modal>
+    <div class="modal_box modal_sm">
+        <div class="modal-header">
+            <h4 class="modal-title">Session Expired</h4>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"><i
+                    class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="delete_modal_msg">
+                <p>User Session is Expired!</p>
+                <span>User needs to be relogin to check new updates!</span>
+            </div>
+        </div>
+        <div class="modal-footer btn_group justify-content-start">
+            <button (click)="modal.dismiss('Cross click')" type="button" class="btn btn-secondary">No, Go Back</button>
+            <button type="submit" class="btn btn-primary" (click)="logout()" [disabled]="isDeleteButtonClicked">Logout?</button>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,228 @@
+<div class="modal_box modal_lg">
+    <!-- <app-progress-bar *ngIf="isLoading"></app-progress-bar> -->
+    <div class="modal-header">
+        <h4 class="modal-title">{{ userId ? 'Update User' : 'Add User' }}</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"><i
+                class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="Userform" (ngSubmit)="addUpdate(userId)">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3 col-lg-4 form-group">
+                        <div class="adduser_image mb-4">
+                            <img *ngIf="imageUrl" #userImage [src]="imageUrl" alt="">
+                            <img *ngIf="!imageUrl" #userImage src="../../../assets/img/user-default-img.png" alt="Default Image">
+                            <input type="file" #fileInput style="display: none" (change)="onFileSelected($event)">
+                            <button type="button" class="edit_user" (click)="openFileInput()" ngbTooltip="Edit Image"
+                                placement="top"><i class="iconsax" icon-name="edit-1"></i></button>
+                            <button type="button" class="delete_user" (click)="deleteImage()" ngbTooltip="Delete Image"
+                                placement="top"><i class="iconsax" icon-name="trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md-9 col-lg-4 form-group">
+                        <h4 class="form-label">{{Userform.get('firstName').value}} {{Userform.get('middleName').value}} {{Userform.get('lastName').value}}</h4>
+                        <span *ngIf="Userform.get('mobile_no')?.value"><i class="fa-solid fa-phone"></i> &nbsp; +91 {{Userform.get('mobile_no')?.value}}</span> <br>
+                        <span *ngIf="Userform.get('email')?.value"><i class="fa-solid fa-envelope"></i> &nbsp; {{Userform.get('email')?.value}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <!-- First Name -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="firstName" class="form-label">First name<span>*</span></label>
+                        <input type="text" class="form-control" placeholder="Enter first name" id="firstName"
+                            formControlName="firstName"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.firstName.errors && Userform.controls.firstName.touched }">
+                        <div class="invalid-feedback"
+                            *ngIf="Userform.controls.firstName.invalid && Userform.controls.firstName.touched">
+                            <ng-container *ngIf="Userform.controls.firstName.hasError('required')">
+                                {{ 'FIELD_REQUIRED' | translate }}
+                            </ng-container>
+                            <ng-container *ngIf="Userform.controls.firstName.hasError('maxlength')">
+                                {{ 'FIRSTNAME_MESSAGE' | translate }}
+                            </ng-container>
+                        </div>
+                    </div>
+                    <!-- Middle Name -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="middleName" class="form-label">Middle name<span>*</span></label>
+                        <input type="text" class="form-control" placeholder="Enter first name" id="middleName"
+                            formControlName="middleName"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.middleName.errors && Userform.controls.middleName.touched }">
+                        <div class="invalid-feedback"
+                            *ngIf="Userform.controls.middleName.invalid && Userform.controls.middleName.touched">
+                            <ng-container *ngIf="Userform.controls.middleName.hasError('required')">
+                                {{ 'FIELD_REQUIRED' | translate }}
+                            </ng-container>
+                            <ng-container *ngIf="Userform.controls.middleName.hasError('maxlength')">
+                                {{ 'MIDDLENAME_MESSAGE' | translate }}
+                            </ng-container>
+                        </div>
+                    </div>
+                    <!-- Last Name -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="lastName" class="form-label">Last name<span>*</span></label>
+                        <input type="text" class="form-control" placeholder="Enter Last name" id="lastName"
+                            formControlName="lastName"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.lastName.errors && Userform.controls.lastName.touched }">
+                        <div class="invalid-feedback"
+                            *ngIf="Userform.controls.lastName.invalid && Userform.controls.lastName.touched">
+                            <ng-container *ngIf="Userform.controls.lastName.hasError('required')">
+                                {{ 'FIELD_REQUIRED' | translate }}
+                            </ng-container>
+                            <ng-container *ngIf="Userform.controls.lastName.hasError('maxlength')">
+                                {{ 'LASTNAME_MESSAGE' | translate }}
+                            </ng-container>
+                        </div>
+                    </div>
+                    <!-- Mobile Number -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="mobile_no" class="form-label">Mobile number</label>
+                        <div class="input_number_wrap">
+                            <div class="input_number_field">
+                                <!-- <select class="form-control" formControlName="code" (change)="onCountryChange()">
+                                    <option *ngFor="let country of countries" [value]="country.code">{{ country.code }}
+                                    </option>
+                                </select> -->
+                                <ng-select placeholder="Code" [(ngModel)]="selectedCountry" [ngModelOptions]="{standalone: true}" [items]="countries" bindLabel="code" bindValue="code" [disabled]="true" (change)="onCountryChange()"></ng-select>
+                                
+                            </div>
+                            <input type="text" class="form-control" placeholder="Enter Mobile number" id="mobile_no"
+                            formControlName="mobile_no" maxlength="10"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.mobile_no.errors && Userform.controls.mobile_no.touched }">
+                        </div>
+                        
+                    </div>
+                    <!-- Address -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" placeholder="Enter Address" id="address"
+                            formControlName="address"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.address.errors && Userform.controls.address.touched }">
+                        <div class="invalid-feedback" *ngIf="Userform.controls.address.hasError('maxlength')">
+                            {{ 'ADDRESS_MESSAGE' | translate }}
+                        </div>
+                    </div>
+                    <!-- Location/Landmark -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="location" class="form-label">Location/Landmark</label>
+                        <input type="text" class="form-control" placeholder="Enter location" id="location"
+                            formControlName="location"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.location.errors && Userform.controls.location.touched }">
+                        <div class="invalid-feedback" *ngIf="Userform.controls.location.hasError('maxlength')">
+                            {{ 'LOCATION_MESSAGE' | translate }}
+                        </div>
+                    </div>
+                    <!-- Email -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="email" class="form-label">Email </label>
+                        <input type="text" class="form-control" placeholder="Enter email address" id="email"
+                            formControlName="email"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.email.errors && Userform.controls.email.touched }">
+                        <div class="invalid-feedback" *ngIf="Userform.controls.email.hasError('required')">
+                            {{ 'FIELD_REQUIRED' | translate }}
+                        </div>
+                        <div class="invalid-feedback" *ngIf="Userform.controls.email.hasError('email')">
+                            {{ 'FIELD_EMAIL' | translate }}
+                        </div>
+                    </div>
+                    <!-- Marriage Status -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="marriageStatus" class="form-label">Marriage Status</label>
+                        <ng-select [items]="marriageStatusArray" placeholder="Select Status" bindLabel="key" bindValue="key"
+                            formControlName="marriageStatus">
+                        </ng-select>
+                        <div class="invalid-feedback" *ngIf="Userform.controls.marriageStatus.hasError('required')">
+                            {{ 'FIELD_REQUIRED' | translate }}
+                        </div>
+                    </div>
+                    <!-- Birthdate -->
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="" class="field_label">Birthdate</label>
+                        <input type="date" placeholder="Select Date" formControlName="birthdate" class="form-control" [max]="maxDate" (change)="checkDateValidation()">
+                    </div>
+                     <!-- Gautra -->
+                     <div class="col-md-6 col-lg-4 form-group">
+                        <label for="gautra" class="form-label">Gautra</label>
+                        <input type="text" class="form-control" placeholder="Enter Gautra" id="gautra"
+                            formControlName="gautra"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.gautra.errors && Userform.controls.gautra.touched }">
+                        <!-- <div class="invalid-feedback" *ngIf="Userform.controls.location.hasError('maxlength')">
+                            {{ 'LOCATION_MESSAGE' | translate }}
+                        </div> -->
+                    </div>
+                    <!-- <div class="col-md-6 col-lg-4 form-group">
+                        <label for="emp_id" class="form-label">Employee ID</label>
+                        <input type="text" class="form-control" placeholder="Enter employee id" id="emp_id"
+                            formControlName="emp_id"
+                            [ngClass]="{ 'is-invalid' : Userform.controls.emp_id.errors && Userform.controls.emp_id.touched }">
+                        <div class="invalid-feedback" *ngIf="Userform.controls.emp_id.hasError('maxlength')">
+                            {{ 'EMP_ID_MESSAGE' | translate }}
+                        </div>
+                    </div> -->
+
+                    <!-- <div class="col-md-6 col-lg-4 form-group">
+                        <label for="company_id" class="form-label">Company <span>*</span></label>
+                        <ng-select formControlName="company_id" placeholder="Select Company" [items]="companies"
+                            bindLabel="company_name" bindValue="_id">
+                        </ng-select>
+                        <div class="invalid-feedback" *ngIf="Userform.controls.company_id.hasError('required')">
+                            {{ 'FIELD_REQUIRED' | translate }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="org_id" class="form-label">Organization<span>*</span></label>
+                        <ng-select formControlName="org_id" [items]="organizations" placeholder="Select Organization"
+                            bindLabel="org_name" bindValue="_id">
+                        </ng-select>
+                        <div class="invalid-feedback" *ngIf="Userform.controls.org_id.hasError('required')">
+                            {{ 'FIELD_REQUIRED' | translate }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="role_id" class="form-label">User role <span>*</span></label>
+                        <ng-select [items]="roles" placeholder="Select Role" bindLabel="name" bindValue="_id"
+                            formControlName="role_id">
+                        </ng-select>
+
+                        <div class="invalid-feedback" *ngIf="Userform.controls.role_id.hasError('required')">
+                            {{ 'FIELD_REQUIRED' | translate }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 form-group">
+                        <label for="dep_id" class="form-label">Department</label>
+                        <ng-select [items]="departments" placeholder="Select Department" bindLabel="name"
+                            bindValue="_id" formControlName="dep_id">
+                        </ng-select>
+                        <div class="invalid-feedback" *ngIf="Userform.controls.dep_id.hasError('required')">
+                            {{ 'FIELD_REQUIRED' | translate }}
+                        </div>
+                    </div> -->
+                    <!-- <div *ngIf="id!=null" class="col-md-6 col-lg-4 form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <ng-select [items]="statusArray" placeholder="Select Status" bindLabel="key" bindValue="key"
+                            formControlName="status">
+                        </ng-select>
+                        <div class="invalid-feedback" *ngIf="Userform.controls.status.hasError('required')">
+                            {{ 'FIELD_REQUIRED' | translate }}
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            <!-- <div>
+                {{Userform.value | json}}
+            </div> -->
+            <div>
+                {{Userform.valid}} - {{isCreateButtonClicked}} - {{isEditButtonClicked}} = {{!Userform.valid || isCreateButtonClicked || isEditButtonClicked}}
+            </div>
+            <div class="modal-footer justify-content-start">
+                <button class="btn" class="btn btn-primary" type="submit"
+                    [disabled]="!Userform.valid || isCreateButtonClicked || isEditButtonClicked">
+                    {{ IsCreatestatus ? 'Create' : 'Update' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

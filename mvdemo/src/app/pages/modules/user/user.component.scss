@@ -1,0 +1,172 @@
+.page-container {
+    position: relative;
+    // margin-top: 60px; /* Adjust this value based on your header height */
+  }
+  
+  .table-container {
+    // height: calc(100vh - 120px); /* Adjust based on header and footer height */
+    overflow-y: auto;
+  }
+  
+  .table-container table {
+    width: 100%;
+    // border-collapse: collapse;
+  }
+  
+  .table-container thead {
+    position: sticky;
+    top: -1px; /* Match the header's height */
+    background-color: #fff; /* Ensure header is visible */
+    z-index: 10; /* Place above other elements */
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1); /* Optional: Adds shadow for better visibility */
+  }
+  
+  .table-container th, td {
+    padding: 8px;
+    border: 0px solid #ddd;
+    text-align: left;
+  }
+  
+
+  .hidden-table {
+    // display: none; /* Ensure this table is hidden in the UI */
+  }
+  
+
+
+//   .role_per_checkbox {
+//     display: flex !important;
+//     align-items: center !important; /* Vertically center items */
+//     justify-content: center !important; /* Horizontally center items */
+//   }
+  
+//   .role_per_checkbox input {
+//     display: none; /* Hide the checkbox */
+//   }
+  
+//   .role_per_checkbox label {
+//     cursor: pointer;
+//     padding-left: 45px;
+//     display: block;
+//     position: relative;
+//     transition: 0.3s;
+//     min-height: 20px;
+//   }
+  
+//   .role_per_checkbox label:before {
+//     position: absolute;
+//     content: "";
+//     width: 36px;
+//     height: 20px;
+//     background: var(--gray-100);
+//     left: 0;
+//     top: 50%; /* Center vertically */
+//     transform: translateY(-50%); /* Center the toggle switch */
+//     border-radius: 12px;
+//     transition: background 0.3s;
+//   }
+  
+//   .role_per_checkbox input:checked + label:before {
+//     background: var(--primary-color); /* Change color on toggle */
+//   }
+  
+//   .role_per_checkbox label:after {
+//     content: "";
+//     position: absolute;
+//     top: 50%; /* Center vertically */
+//     left: 2px; /* Initial position for "false" */
+//     width: 16px;
+//     height: 16px;
+//     background: #fff;
+//     border-radius: 90px;
+//     transition: left 0.3s, transform 0.3s; /* Smooth transition */
+//     box-shadow: 0px 1px 2px 0px #1018280f, 0px 1px 3px 0px #1018281a;
+//     transform: translateY(-50%); /* Keep centered */
+//   }
+  
+//   .role_per_checkbox input:checked + label:after {
+//     left: calc(36px - 18px); /* Adjust left position for "true" */
+//     transform: translateX(-100%); /* Center and align correctly */
+//     top: -6px;
+//   }
+
+.bottomBorder {
+  border-bottom: 0px solid black !important;
+}
+  
+
+// scrollable td
+.scrollable-td {
+  max-width: 200px; /* Set the desired max width for the cell */
+  height: auto; /* Ensure the height adjusts for multi-line text */
+  overflow: hidden; /* Hide overflow content */
+  // text-overflow: ellipsis; /* Add ellipsis for truncated text */
+  white-space: nowrap; /* Allow text to wrap */
+  word-wrap: break-word; /* Break words to prevent overflow */
+}
+
+.scrollable-td:hover {
+  overflow: auto; /* Allow scrolling on hover */
+  max-height: 100px; /* Set a max height for the scrolling area */
+  white-space: nowrap; /* Ensure proper wrapping during scroll */
+}
+
+.scrollable-td::-webkit-scrollbar {
+  width: 6px; /* Customize scrollbar width */
+  height: 6px; /* Customize scrollbar height */
+}
+
+.scrollable-td::-webkit-scrollbar-thumb {
+  background: #aaa; /* Customize scrollbar color */
+  border-radius: 3px; /* Rounded corners for scrollbar */
+}
+
+.scrollable-td::-webkit-scrollbar-thumb:hover {
+  background: #888; /* Darker color on hover */
+}
+
+// // language toggle
+// .language-toggle {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 10px;
+// }
+
+// .language-option {
+//   // font-size: 16px;
+//   padding: 5px 10px;
+//   cursor: pointer;
+//   transition: color 0.3s, background-color 0.3s;
+//   border-radius: 5px;
+// }
+
+// .language-option.active {
+//   color: white;
+//   background-color: var(--primary-color);
+// }
+
+// .toggle-switch {
+//   width: 40px;
+//   height: 20px;
+//   background-color: #ccc;
+//   border-radius: 25px;
+//   position: relative;
+//   cursor: pointer;
+//   transition: background-color 0.3s;
+// }
+
+// .toggle-switch .toggle-thumb {
+//   width: 15px;
+//   height: 15px;
+//   background-color: white;
+//   border-radius: 50%;
+//   position: absolute;
+//   top: 2.5px;
+//   left: 3.5px;
+//   transition: left 0.3s;
+// }
+
+// .toggle-switch .toggle-thumb.right {
+//   left: 20.5px;
+// }

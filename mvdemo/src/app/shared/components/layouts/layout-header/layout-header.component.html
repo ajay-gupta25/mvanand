@@ -1,0 +1,66 @@
+<nav class="site_header">
+    <!-- <app-progress-bar *ngIf="isLoading"></app-progress-bar> -->
+    <button *ngIf="this.gAuthService.identityClaims" class="toggler_icon" type="button" (click)="sidebarFlag == false ? opensidebar() : closesidebar()">
+        <span class="togglerbar_1"></span>
+        <span class="togglerbar_2"></span>
+        <span class="togglerbar_3"></span>
+    </button>
+    <a class="site_logo navbar-brand" [routerLink]="['/home']">
+        {{ appName }}
+    </a>
+    <ul class="header_nav ms-auto d-flex align-items-center">
+        <!-- <li><a  class="notifications" ngbTooltip="Notification" placement="bottom"><i class="iconsax" icon-name="bell-1"></i></a></li> -->
+        <!-- <li *ngIf="this.gAuthService.identityClaims">
+            <div class="language-toggle">
+                <span class="language-option" [class.active]="selectedLanguage === 'Gujarati'" (click)="setLanguage('Gujarati')"> Gujarati </span>
+                <div class="toggle-switch" (click)="toggleLanguage()">
+                  <div class="toggle-thumb" [class.right]="selectedLanguage === 'English'"></div>
+                </div>
+                <span class="language-option" [class.active]="selectedLanguage === 'English'" (click)="setLanguage('English')"> English </span>
+            </div>
+        </li> -->
+        <li *ngIf="!this.gAuthService.identityClaims">
+            <button type="button" class="btn btn-primary" (click)="login()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Login User</button>
+        </li>
+        <li *ngIf="this.gAuthService.identityClaims">
+            <div class="dropdown user_dropdown" ngbDropdown>
+                <a class="dropdown-toggle" ngbDropdownToggle id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img *ngIf="ImgUrl" [src]="this.gAuthService.identityClaims['picture']" alt="">
+                    <img *ngIf="!ImgUrl" src="../../../assets/img/user-image.png" alt="DefaultImage">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" ngbDropdownMenu aria-labelledby="navbarDropdown">
+                    <li>
+                        <div class="dropdown_user_wrap">
+                            <div class="dropdown_user_img">
+                                <img *ngIf="ImgUrl" [src]="ImgUrl" alt="">
+                                <img *ngIf="!ImgUrl" src="../../../assets/img/user-image.png" alt="DefaultImage">
+                            </div>
+                            <div class="dropdown_user_desc">
+                                <p class="dropdown_user_name">{{ firstName }} {{ lastName }}</p>
+                            <p class="dropdown_user_email">{{ email }}</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="language-toggle">
+                            <i class="iconsax" icon-name="translate"></i>
+                            <span class="language-option" [class.active]="selectedLanguage === 'Gujarati'" (click)="setLanguage('Gujarati')"> Gujarati </span>
+                            <div class="toggle-switch" (click)="toggleLanguage()">
+                              <div class="toggle-thumb" [class.right]="selectedLanguage === 'English'"></div>
+                            </div>
+                            <span class="language-option" [class.active]="selectedLanguage === 'English'" (click)="setLanguage('English')"> English </span>
+                        </div>
+                    </li>
+                    <li><a class="dropdown-item" [routerLink]="['/home/setting/my-profile']" [routerLinkActive]="['active']"><i class="iconsax" icon-name="user-2"></i> {{ "MY_ACCOUNT" | translate }}</a></li>
+                    <!-- <li><a class="dropdown-item" [routerLink]="['/home/setting/change-password']" [routerLinkActive]="['active']"><i class="iconsax" icon-name="lock-2"></i> {{ "CHANGE_PASSWORD" | translate }}</a></li> -->
+                    <li><a class="dropdown-item cursor-pointer" (click)="onClickLogout()"><i class="iconsax" icon-name="logout-2"></i> {{ "LOGOUT" | translate }}</a></li>
+                </ul>
+            </div>
+        </li>
+    </ul>
+</nav>
+
+
+<!-- NOTE Content -->
+<app-progress-bar *ngIf="isLoading"></app-progress-bar>
+<ng-content></ng-content>

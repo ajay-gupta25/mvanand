@@ -1,0 +1,21 @@
+
+<section class="site_container">
+    <div class="site_main">
+        <div class="site_main_inner">
+          <div class="login_container">
+            <div class="not-found-container">
+              <div class="not-found text-center">
+                <h1 class="mb-3">{{ 'ACCESS_DENIED' | translate }}</h1>
+                <a *ngIf="hasPermission('Dashboard', 'view')" class="btn btn-lg btn-primary" routerLink="/home">
+                  {{ 'GO_TO_HOMEPAGE' | translate }}
+                </a>
+                <a *ngIf="!hasPermission('Dashboard', 'view')" class="btn btn-lg btn-primary" routerLink="/home/setting/my-profile">
+                  {{ 'Go To My Profile' | translate }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <app-layout-footer></app-layout-footer>
+  </section>
