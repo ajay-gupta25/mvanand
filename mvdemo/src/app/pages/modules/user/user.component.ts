@@ -11,8 +11,24 @@ import { GoogleAuthService } from '@services/auth/google-auth.service';
 import { Router } from '@angular/router';
 import {jsPDF} from 'jspdf';
 import { lastValueFrom } from 'rxjs';
+import 'jspdf-autotable';
+import * as pdfMake from 'pdfmake/build/pdfmake';
 
 
+// Import the font file
+import { vfs } from '../../../../assets/vfs_fonts';
+
+(pdfMake as any).vfs = vfs;
+pdfMake.fonts = {
+  NotoSansGujarati: {
+    normal: 'NotoSansGujarati.ttf',
+    bold: 'NotoSansGujarati-Bold.ttf',
+  },
+  helvetica: {
+    normal: 'helvetica.ttf',
+    bold: 'helvetica-Bold.ttf',
+  },
+};
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
@@ -130,6 +146,7 @@ export class UserComponent {
 
   gujUserArray: any = [];
   selectedLanguage = 'English';
+  maxReceipt = 0;
 
 
   constructor
@@ -241,6 +258,18 @@ export class UserComponent {
     this.resetSearch();
   }
 
+  getMaxReceipt() {
+    let max = 0;
+    this.userArray.forEach(row => {
+      max = max > row[this.nonYearColumnCount + 0] ? max : row[this.nonYearColumnCount + 0];
+      max = max > row[this.nonYearColumnCount + 1] ? max : row[this.nonYearColumnCount + 1];
+      max = max > row[this.nonYearColumnCount + 2] ? max : row[this.nonYearColumnCount + 2];
+      max = max > row[this.nonYearColumnCount + 3] ? max : row[this.nonYearColumnCount + 3];
+      max = max > row[this.nonYearColumnCount + 4] ? max : row[this.nonYearColumnCount + 4];
+    });
+    return max;
+  }
+
   manageSearch() {
     this.isSearchActivate = false;
     var allTrue = Object.keys(this.searchableColumns).filter((k) => {
@@ -286,6 +315,7 @@ export class UserComponent {
           this.yearColumnHeader = this.sheetsService.userData[0].slice(this.nonYearColumnCount).filter(ud => {
             return ud;
           });
+          this.maxReceipt = this.getMaxReceipt();
         }
       },
       error: (error) => {
@@ -401,7 +431,7 @@ export class UserComponent {
 
   async saveReceiptData() {
     this.isLoading = true;
-    this.receiptEditData.user[this.receiptEditData.colId] = this.receiptEditData.cellValue == null ? 'N/A' : 0;
+    this.receiptEditData.user[this.receiptEditData.colId] = this.receiptEditData.cellValue == null ? 'N/A' : this.receiptEditData.cellValue;
     console.log('receiptEditData: ', this.receiptEditData);
     // console.log('updated user is: ', this.receiptEditData.user);
     // update sheet data
@@ -790,12 +820,15 @@ export class UserComponent {
     this.activeSearch = null;
   }
 
-  generateData(hdr, data) {
+  generateData1(hdr, data) {
     var result = [];
     var printData = {};
     for (var i = 0; i < data.length; i++) {
       printData['#'] = (i + 1).toString();
-      printData['Member Name'] = data[i][1] + ' ' + data[i][2] + ' ' + data[i][3];
+      if (this.selectedLanguage == 'English') printData['Member Name'] = data[i][1] + ' ' + data[i][2] + ' ' + data[i][3];
+      else 
+      console.log('Row ['+i+']: ',data[i][12] + ' ' + data[i][13] + ' ' + data[i][14]);
+      printData['Member Name'] = data[i][12] + ' ' + data[i][13] + ' ' + data[i][14];
       printData['2022'] = data[i][this.nonYearColumnCount + 0] || 'N/A';
       printData['2023'] = data[i][this.nonYearColumnCount + 1] || 'N/A';
       printData['2024'] = data[i][this.nonYearColumnCount + 2] || 'N/A';
@@ -823,60 +856,55 @@ export class UserComponent {
     return result;
   }
   
-  downloadAsPDF() {
+  downloadAsPDF2() {
     var hdr = [...[
         "#",
         "Member Name",
       ]
       , ...this.yearColumnHeader
     ];
-  // console.log('----Object.keys(this.columnControl):', Object.keys(this.columnControl));
-    // var hdr: any; 
-    // var headerConfig: any; 
-    // headerConfig = Object.keys(this.columnControl).map(column => {
-    //   // let width = column === 'ID' ? 50 : 100; // Example: Set different widths for "ID"
-    //   // return { name: column, width };
-    //   let hObj: any;
-    //   if (this.columnControl[column]) {
-    //     hObj = {
-    //       'id': column,
-    //       'name': column,
-    //       'prompt': column,
-    //       'width': 65,
-    //       // 'align': 'center',
-    //       'padding': 0
-    //     };
-    //     // if (column == 'Member Name') {
-    //     //   hObj['width'] = 0;
-    //     // }
-    //   }
-    //   return hObj;
-    // });
-    // this.userHeader.forEach((h) => {
-    //   let hObj = {
-    //     'id': h,
-    //     'name': h,
-    //     'prompt': h,
-    //     'width': 65,
-    //     'align': 'center',
-    //     'padding': 0
-    //   };
-    //   headerConfig.push(hObj);
-    // });
-// return;
-  
     var headers = this.createHeaders(hdr);
     
     var doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
     doc.setFontSize(28);
-    doc.setFont("helvetica", "bold");
-    doc.text("MvAnand", 105, 15,  null, "center");
+    doc.addFont("../../../../assets/fonts/NotoSansGujarati.ttf","NotoSansGujarati","normal");
+    doc.setFont("NotoSansGujarati", "normal");
+    // if (this.selectedLanguage == 'English') {
+    //   doc.setFont("helvetica", "bold");
+    // } else {
+    // }
+
+    doc.text(this.userArray[1][12], 105, 15,  null, "center");
     // doc.text("This is centred text.", 105, 80, null, null, "center");
-    doc.table(10, 20, this.generateData(hdr,this.userArray), headers, { autoSize: true });
+    doc.table(10, 20, this.generateData(this.userArray), headers, { autoSize: true, headerTextColor: 'red', headerBackgroundColor: 'yellow' });
     doc.save('FilteredTable.pdf');
   }
   
   
+
+  downloadAsPDF3() {
+    const hdr = ["#", "Member Name", ...this.yearColumnHeader];
+    const headers = this.createHeaders(hdr);
+    const rows = this.generateData( this.userArray);
+  
+    const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
+    doc.setFontSize(28);
+    doc.addFont("../../../../assets/fonts/NotoSansGujarati.ttf", "NotoSansGujarati", "normal");
+    doc.setFont("NotoSansGujarati", "normal");
+  
+    // Title
+    doc.text("ભીખુભાઈ કૈલાશચંદ્ર ગુપ્તા", 105, 15, null, "center");
+  
+    // Add table
+    // doc.autoTable({
+    //   head: [headers],
+    //   body: rows,
+    //   styles: { font: "NotoSansGujarati", fontStyle: "normal" },
+    // });
+  
+    doc.save('FilteredTable.pdf');
+  }
+
 
 
   public downloadAsPDF1(): void {
@@ -909,6 +937,95 @@ export class UserComponent {
       },
     });
   }
+
+
+  generateData(data) {
+    let tableData = data.map((row, index) => {
+      let memberData = '';
+      if (this.selectedLanguage == 'English') memberData = `${row[1]} ${row[2]} ${row[3]}`;
+      else memberData = `${row[12]} ${row[13]} ${row[14]}`;
+      return [
+        {text: (index + 1).toString(), style: 'tableData'}, // #
+        {text: memberData, style: 'tableData'}, // Member Name
+        {text: row[this.nonYearColumnCount + 0] || 'N/A', style: 'tableData'}, // 2022
+        {text: row[this.nonYearColumnCount + 1] || 'N/A', style: 'tableData'}, // 2023
+        {text: row[this.nonYearColumnCount + 2] || 'N/A', style: 'tableData'}, // 2024
+        {text: row[this.nonYearColumnCount + 3] || 'N/A', style: 'tableData'}, // 2025
+        {text: row[this.nonYearColumnCount + 4] || 'N/A', style: 'tableData'}, // 2026
+      ];
+    });
+    return tableData;
+  }
+  
+  downloadAsPDF() {
+    // Table headers
+    const hdr = [
+      {text: '#', style: 'tableHeader'}, 
+      {text: this.selectedLanguage == 'English' ? 'Member Name' :'સદસ્યોના નામ', style: 'tableHeader'}, 
+      {text: '2022', style: 'tableHeader'}, 
+      {text: '2023', style: 'tableHeader'}, 
+      {text: '2024', style: 'tableHeader'}, 
+      {text: '2025', style: 'tableHeader'}, 
+      {text: '2026', style: 'tableHeader'}
+    ];
+  
+    // Generate data for the table
+    const tableBody = [hdr, ...this.generateData(this.userArray)];
+  
+    // Document definition for pdfMake
+    const docDefinition = {
+      content: [
+        {
+          stack: [
+          this.selectedLanguage == 'English' ? 'Mathur Vyshy Shakha Sabha, Anand' :'માથુર વૈશ્ય શાખા સભા, આણંદ',
+          // {text: 'This is a subheader', style: 'subheader'},
+          ],
+          style: 'header'
+        },
+        // { text: this.selectedLanguage == 'English' ? 'Mathur Vyshy Anand Shakha Sabha' :'માથુર વૈશ્ય આણંદ શાખા સભા', fontSize: 16, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
+        { text: this.selectedLanguage == 'English' ? 'Last Added: '+this.maxReceipt  : 'પાછલી રસીદ નં: '+this.maxReceipt, fontSize: 10, bold: false, alignment: 'right', margin: [0, 10, 0, 10] },
+        {
+          table: {
+            headerRows: 1,
+            body: tableBody,
+          },
+          style: 'tableExample',
+          layout: 'lightHorizontalLines', // Optional table styling
+        },
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          alignment: 'center',
+          margin: [0, 15, 0, 0]
+        },
+        tableExample: {
+          margin: [20, 5, 0, 10],
+          // alignment: 'center',
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 12,
+          color: 'black',
+          margin: [3, 3, 3, 3]
+        },
+        tableData: {
+          bold: true,
+          // fontSize: 12,
+          color: 'black',
+          margin: [3, 3, 3, 3]
+        }
+      },
+      defaultStyle: {
+        font: this.selectedLanguage == 'English'? 'helvetica' : 'NotoSansGujarati', // Set default font to Gujarati
+      },
+    };
+  
+    // Generate and download the PDF
+    pdfMake.createPdf(docDefinition).download('MvAnand.pdf');
+  }
+  
   
 
 }

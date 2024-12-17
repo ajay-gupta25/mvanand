@@ -1,13 +1,9 @@
-<app-layout-header (messageEvent)="getSelectedLanguage($event)"></app-layout-header>
+<app-layout-header (messageEvent)="getSelectedLanguage($event)" (downloadEvent)="downloadAsPDF()"></app-layout-header>
 <!-- <p>{{ selectedLanguage }}</p> -->
 <app-page-layout> 
     <div class="main_content">
         <app-progress-bar *ngIf="isLoading"></app-progress-bar>
         <ng-container *ngIf="!this.gAuthService.identityClaims">
-            <!-- <button type="button" class="btn btn-primary" (click)="login()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Login User</button> -->
-            <!-- <button type="button" class="btn btn-primary" (click)="login1()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Login 1</button> -->
-                    <!-- <button type="button" class="btn btn-primary" (click)="config()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>config</button> -->
-                    <!-- <button type="button" class="btn btn-primary" (click)="fetchSheetData('sheet1')" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>sheet</button> -->
         </ng-container>
         <ng-container *ngIf="this.gAuthService.identityClaims">
             <!-- <app-settings></app-settings> -->
@@ -18,24 +14,6 @@
                         <input type="search" placeholder="Search By Name & Email " class="search_field form-control" [(ngModel)]="search"
                             (input)="filterUserBySearch()">
                     </div> -->
-                    <!-- <div class="datatable_filter">
-                        <label for="">Company: </label>
-                        <ng-select [items]="companyNamesObj" bindLabel="company_name" placeholder="Select Company" [(ngModel)]="selectedCompany" (change)="onCompanyChange($event)">
-                        </ng-select>
-                    </div>
-                    <div class="datatable_filter">
-                        <label for="">Location: </label>
-                        <ng-select class="col-md-3" [items]="locations" placeholder="Select Location" bindLabel="location" [(ngModel)]="selectedLocation"
-                            (change)="onLocationChange($event)">
-                        </ng-select>
-                    </div>
-                    <div class="datatable_filter">
-                        <label for="">Status: </label>
-                        <ng-select [items]="statusArray" placeholder="Select Status" bindLabel="key" (change)="onstatuschange($event)" [(ngModel)]="selectedStatus">
-                        </ng-select>
-                    </div> -->
-                    <!-- <button type="button" class="btn btn-secondary px-4" (click)="clearFilters()"
-                  data-bs-toggle="modal" data-bs-target="#staticBackdrop">Clear</button> -->
                 </div>
 
                 <div class="dropdown" ngbDropdown>
@@ -140,115 +118,14 @@
                   
                 
                 <div class="page_header_right btn_group">
-                    <!-- <div class="dropdown" ngbDropdown>
-                        <a class="dropdown-toggle btn btn-secondary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="iconsax" icon-name="translate"></i>
-                        </a>
-                        <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
-                            <h6>Select Language</h6>
-                            <ul>
-                                <li *ngFor="let lang of languages; let i=index">
-                                    <div class="role_per_checkbox">
-                                        <input type="checkbox" [id]="lang" [(ngModel)]="languageControl[lang]">
-                                        <label [for]="lang" class="">{{lang}}</label>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div> -->
-                    <!-- <div class="dropdown" ngbDropdown>
-                        <a class="dropdown-toggle btn btn-secondary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="iconsax" icon-name="eye"></i>View
-                        </a>
-                        <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
-                            <h6>Select Column</h6>
-                            <ul>
-                                <li>
-                                    <div class="role_per_checkbox">
-                                        <input type="checkbox" id="custom_column_SelectAll" (change)="selectDeselectAll($event, 'columnControl')" >
-                                        <label for="custom_column_SelectAll" class="custom_column_SelectAll">Select All</label>
-                                    </div>
-                                </li>
-                                <li *ngFor="let header of userHeader; let i=index">
-                                    <div class="role_per_checkbox">
-                                        <input type="checkbox" [id]="'custom_column_'+header" [(ngModel)]="columnControl[header]">
-                                        <label [for]="'custom_column_'+header" class="">{{header}}</label>
-                                    </div>
-                                </li>
-                            </ul>
-                            <!-- <h6>Custom Metadata</h6>
-                            <ul>
-                                <li *ngFor="let item of metaData; index as i">
-                                    <div class="role_per_checkbox">
-                                        <input type="checkbox" id="{{item}}" [(ngModel)]="columnControl[item]" formcontrolname="'custom'+i">
-                                        <label for="{{item}}" class="">{{item}}</label>
-                                    </div>
-                                </li>
-                            </ul> --
-                        </div>
-                    </div> -->
-                    <!-- <div class="dropdown" ngbDropdown>
-                        <a class="dropdown-toggle btn btn-secondary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="iconsax" icon-name="search-normal-2"></i>Search
-                        </a>
-                        <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
-                            <h6>Select Column</h6>
-                            <ul>
-                                <li>
-                                    <div class="role_per_checkbox">
-                                        <input type="checkbox" id="column_search_SelectAll" (change)="selectDeselectAll($event, 'searchableColumns')" >
-                                        <label for="column_search_SelectAll" class="column_search_SelectAll">Select All</label>
-                                    </div>
-                                </li>
-                                <li *ngFor="let header of userHeader; let i=index">
-                                    <div class="role_per_checkbox">
-                                        <input type="checkbox" [id]="'column_search_'+header" [(ngModel)]="searchableColumns[header]">
-                                        <label [for]="'column_search_'+header" class="">{{header}}</label>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div> -->
-                    <!-- <button type="button" class="btn btn-secondary" (click)="enableSearch()"><i class="iconsax" icon-name="search"></i>Search</button> -->
-                    <!-- <div class="dropdown" ngbDropdown>
-                        <a class="dropdown-toggle btn btn-secondary" ngbDropdownToggle id="ColumnDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="iconsax" icon-name="filter"></i>Sorting
-                        </a>
-                        <div class="dropdown-menu CustomColumn_Dropdown" ngbDropdownMenu aria-labelledby="ColumnDropdown">
-                            <h6>Select Column</h6>
-                            <ul>
-                                <li>
-                                    <div class="role_per_checkbox">
-                                        <input type="checkbox" id="column_sorting_SelectAll" (change)="selectDeselectAll($event, 'sortableColumns')" >
-                                        <label for="column_sorting_SelectAll" class="column_sorting_electAll">Select All</label>
-                                    </div>
-                                </li>
-                                <li *ngFor="let header of userHeader; let i=index">
-                                    <div class="role_per_checkbox">
-                                        <input type="checkbox" [id]="'column_sorting_'+header" [(ngModel)]="sortableColumns[header]">
-                                        <label [for]="'column_sorting_'+header" class="">{{header}}</label>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div> -->
                     <!-- <button type="button" class="btn btn-secondary" (click)="openVerticallyCentered(import_popup)" 
                         data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="download-1"></i>Import</button> -->
-                    <button type="button" class="btn btn-secondary" (click)="downloadAsPDF()" 
-                        data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="download-1"></i>Download</button>
-                    <!-- <button type="button" class="btn btn-secondary" (click)="downloadAsPDF1()" 
-                        data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="download-1"></i>Download1</button> -->
+                    <!-- <button type="button" class="btn btn-secondary" (click)="downloadAsPDF()" 
+                        data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="download-1"></i>Download</button> -->
                     <button type="button" class="btn btn-primary" (click)="openVerticallyCentered(create_user)"
                         data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Create
                         User</button>
                     <!-- <button type="button" class="btn btn-primary" (click)="fetchSheetData('sheet1')" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>sheet</button> -->
-                    <!-- <div class="language-toggle">
-                        <span class="language-option" [class.active]="selectedLanguage === 'Gujarati'" (click)="setLanguage('Gujarati')"> Gujarati </span>
-                        <div class="toggle-switch" (click)="toggleLanguage()">
-                          <div class="toggle-thumb" [class.right]="selectedLanguage === 'English'"></div>
-                        </div>
-                        <span class="language-option" [class.active]="selectedLanguage === 'English'" (click)="setLanguage('English')"> English </span>
-                    </div> -->
                 </div>
             </div>
             <div>
@@ -294,7 +171,7 @@
                                 <ng-container *ngFor="let user of userArray; let i=index">
 
                                 <tr>
-                                    <td>{{ i+1 }}</td>
+                                    <td>{{ i+1 }} </td>
                                     <td *ngIf="columnControl[userHeader[0]]">{{ user[0] }}</td>
                                     <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'English'"><label *ngIf="userArray[i]">{{ user[1] }} {{ user[2] }} {{ user[3] }}</label></td>
                                     <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'Gujarati'"><label *ngIf="userArray[i]">{{ user[12] }} {{ user[13] }} {{ user[14] }}</label></td>
@@ -309,9 +186,6 @@
                                         <label ><button type="button" (click)="openVerticallyCentered1(user._id,user_detail)" data-bs-toggle="modal" data-bs-target="#staticBackdrop"> {{ user?.emp_id || 'N/A' }}</button></label>
                                     </td> -->
                                 </tr>
-                                <!-- <tr>
-                                    <td>Gujju data</td>
-                                </tr> -->
                             </ng-container>
                             </tbody>
                             <ng-template #noData>
@@ -344,6 +218,9 @@
                     </div>
                 </div> -->
             </div>
+            <div class="page_header_right btn_group">
+                <h6 class="page_header_right btn_group">Last Added: {{maxReceipt}}</h6>
+                </div>
         </ng-container>
     </div>
 </app-page-layout>

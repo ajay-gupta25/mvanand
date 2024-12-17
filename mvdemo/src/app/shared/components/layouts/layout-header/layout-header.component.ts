@@ -23,13 +23,14 @@ export class LayoutHeaderComponent implements OnInit {
   
   ImgUrl: string = null;
   firstName: string = null;
-  @Input() firstName1: string | null = null;
   lastName: string = null;
   email: string = null;
   isLoggedIn: any;
   isLoading: boolean = false;
 
   @Output() messageEvent = new EventEmitter<string>();
+  @Output() downloadEvent = new EventEmitter<any>();
+  downloadStatus = false;
   selectedLanguage: any = "English";
   constructor
     (
@@ -50,10 +51,15 @@ export class LayoutHeaderComponent implements OnInit {
       this.messageEvent.emit(this.selectedLanguage);
     }
 
-
+    downloadPdf() {
+      this.downloadStatus = true;
+      this.downloadEvent.emit({'download': this.downloadStatus});
+      setTimeout(() => {
+        this.downloadStatus = false;
+      }, 10000);
+    }
     
     public ngOnInit(): void {
-      this.firstName1 = "aajjjj";
     this.ImgUrl = this.profileImage;
     
     //  this.updateProfileImage();

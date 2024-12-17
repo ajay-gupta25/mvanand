@@ -23,6 +23,9 @@
             <button type="button" class="btn btn-primary" (click)="login()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Login User</button>
         </li>
         <li *ngIf="this.gAuthService.identityClaims">
+            <button type="button" class="btn-secondary" [disabled]="downloadStatus" (click)="downloadPdf()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="document-download"></i></button>
+        </li>
+        <li *ngIf="this.gAuthService.identityClaims">
             <div class="dropdown user_dropdown" ngbDropdown>
                 <a class="dropdown-toggle" ngbDropdownToggle id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <img *ngIf="ImgUrl" [src]="this.gAuthService.identityClaims['picture']" alt="">
