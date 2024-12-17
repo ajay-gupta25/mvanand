@@ -12,7 +12,7 @@
                     <div class="col-md-3 col-lg-4 form-group">
                         <div class="adduser_image mb-4">
                             <img *ngIf="imageUrl" #userImage [src]="imageUrl" alt="">
-                            <img *ngIf="!imageUrl" #userImage src="../../../assets/img/user-default-img.png" alt="Default Image">
+                            <img *ngIf="!imageUrl" #userImage src="../../../../../assets/img/user-default-img.png" alt="Default Image">
                             <input type="file" #fileInput style="display: none" (change)="onFileSelected($event)">
                             <button type="button" class="edit_user" (click)="openFileInput()" ngbTooltip="Edit Image"
                                 placement="top"><i class="iconsax" icon-name="edit-1"></i></button>

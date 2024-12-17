@@ -29,14 +29,14 @@
             <div class="dropdown user_dropdown" ngbDropdown>
                 <a class="dropdown-toggle" ngbDropdownToggle id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <img *ngIf="ImgUrl" [src]="this.gAuthService.identityClaims['picture']" alt="">
-                    <img *ngIf="!ImgUrl" src="../../../assets/img/user-image.png" alt="DefaultImage">
+                    <img *ngIf="!ImgUrl" src="../../../../../assets/img/user-image.png" alt="DefaultImage">
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" ngbDropdownMenu aria-labelledby="navbarDropdown">
                     <li>
                         <div class="dropdown_user_wrap">
                             <div class="dropdown_user_img">
                                 <img *ngIf="ImgUrl" [src]="ImgUrl" alt="">
-                                <img *ngIf="!ImgUrl" src="../../../assets/img/user-image.png" alt="DefaultImage">
+                                <img *ngIf="!ImgUrl" src="../../../../../assets/img/user-image.png" alt="DefaultImage">
                             </div>
                             <div class="dropdown_user_desc">
                                 <p class="dropdown_user_name">{{ firstName }} {{ lastName }}</p>
