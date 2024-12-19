@@ -31,7 +31,7 @@ const categoriesUrl:string = `${scheme}${host}`;
 
 export const environment = {
   production: false,
-  version: packageInfo.version,
+  version: "0.0.1",
   appName: 'MvAnand',
   envName: EnvName.LOCAL,
   defaultLanguage: 'en',

@@ -14,11 +14,11 @@ export class GoogleAuthService {
   
 
   authConfig: AuthConfig = {
-    issuer: 'https://accounts.google.com',
-    strictDiscoveryDocumentValidation: false,
-    clientId: '494395922809-oa4h19stvej6gt8bvmjnv7ofoni7ap5i.apps.googleusercontent.com',
-    scope: 'openid profile email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets',
-    redirectUri: 'https://ajay-gupta25.github.io/mvanand/',
+    // issuer: 'https://accounts.google.com',
+    // strictDiscoveryDocumentValidation: false,
+    // clientId: '494395922809-oa4h19stvej6gt8bvmjnv7ofoni7ap5i.apps.googleusercontent.com',
+    // scope: 'openid profile email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets',
+    // redirectUri: 'https://ajay-gupta25.github.io/mvanand/',
     // redirectUri: window.location.origin,
   }
 
