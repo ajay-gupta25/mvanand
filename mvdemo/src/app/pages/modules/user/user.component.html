@@ -176,7 +176,7 @@
                                     <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'English'"><label *ngIf="userArray[i]">{{ user[1] }} {{ user[2] }} {{ user[3] }}</label></td>
                                     <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'Gujarati'"><label *ngIf="userArray[i]">{{ user[12] }} {{ user[13] }} {{ user[14] }}</label></td>
                                     <ng-container *ngFor="let cell of user.slice(1); let j=index">
-                                        <td class="scrollable-td" *ngIf="columnControl[userHeader[j+1]]" (click)="editReceiptNumber(user, j+1, i+1, edit_yearData)"><label>{{ cell || 'N/A' }}</label></td>
+                                        <td class="scrollable-td" *ngIf="columnControl[userHeader[j+1]]" (click)="editReceiptNumber(user, j+1, i+1, edit_yearData)"><label>{{ (!cell && cell !== 0) ? 'N/A' : cell }}</label></td>
                                     </ng-container> 
                                     <td *ngIf="isAdmin()">
                                         <button type="button" class="edit_icon" (click)="edituser(user,create_user)"><i ngbTooltip="Edit" placement="top" class="fa-solid fa-pencil"></i></button> 

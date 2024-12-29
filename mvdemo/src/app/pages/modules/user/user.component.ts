@@ -129,7 +129,7 @@ export class UserComponent {
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = 'asc';
   
-  yearColumnHeader;
+  // yearColumnHeader;
   nonYearColumnCount = 15;
   receiptEditData: any = {};
 
@@ -147,6 +147,9 @@ export class UserComponent {
   gujUserArray: any = [];
   selectedLanguage = 'English';
   maxReceipt = 0;
+  currentYear = new Date().getFullYear(); // 2027
+  showNumberOfYears = 3;
+  activeYearColumns = [];
 
 
   constructor
@@ -203,8 +206,6 @@ export class UserComponent {
   }
 
   manageColumn() {
-    const today = new Date();
-    let currentYear = today.getFullYear();
 
     // console.log('userHeader:', this.userHeader);
     let baseConfig;
@@ -222,13 +223,16 @@ export class UserComponent {
     this.searchableColumns['MemberName'] = false;
 
     // keep current year active/visible
-    if (currentYear) {
-      this.columnControl[currentYear-2] = true;
-      this.columnControl[currentYear-1] = true;
-      this.columnControl[currentYear] = true;
-      this.sortableColumns[currentYear-2] = true;
-      this.sortableColumns[currentYear-1] = true;
-      this.sortableColumns[currentYear] = true;
+    if (this.activeYearColumns) {
+      this.activeYearColumns.forEach(year => {
+        this.columnControl[year.header] = true;
+        this.sortableColumns[year.header] = true;
+
+      });
+      // this.columnControl[this.currentYear-1] = true;
+      // this.columnControl[this.currentYear-0] = true;
+      // this.sortableColumns[this.currentYear-1] = true;
+      // this.sortableColumns[this.currentYear-0] = true;
     }
     this.preserveState();
     // console.log('searchableColumns:', this.searchableColumns);
@@ -261,11 +265,11 @@ export class UserComponent {
   getMaxReceipt() {
     let max = 0;
     this.userArray.forEach(row => {
-      max = max > row[this.nonYearColumnCount + 0] ? max : row[this.nonYearColumnCount + 0];
-      max = max > row[this.nonYearColumnCount + 1] ? max : row[this.nonYearColumnCount + 1];
-      max = max > row[this.nonYearColumnCount + 2] ? max : row[this.nonYearColumnCount + 2];
-      max = max > row[this.nonYearColumnCount + 3] ? max : row[this.nonYearColumnCount + 3];
-      max = max > row[this.nonYearColumnCount + 4] ? max : row[this.nonYearColumnCount + 4];
+      max = max > Number(row[this.nonYearColumnCount + 0]) ? max : row[this.nonYearColumnCount + 0];
+      max = max > Number(row[this.nonYearColumnCount + 1]) ? max : row[this.nonYearColumnCount + 1];
+      max = max > Number(row[this.nonYearColumnCount + 2]) ? max : row[this.nonYearColumnCount + 2];
+      max = max > Number(row[this.nonYearColumnCount + 3]) ? max : row[this.nonYearColumnCount + 3];
+      max = max > Number(row[this.nonYearColumnCount + 4]) ? max : row[this.nonYearColumnCount + 4];
     });
     return max;
   }
@@ -309,12 +313,13 @@ export class UserComponent {
           this.userHeader.forEach(header => {
             this.searchValues[header] = '';
           });
+          this.getActiveYearHeaders(this.showNumberOfYears);
           if (!localStorage.getItem('columnControl') || this.checkTogglesState()) {
             this.manageColumn();
           }
-          this.yearColumnHeader = this.sheetsService.userData[0].slice(this.nonYearColumnCount).filter(ud => {
-            return ud;
-          });
+          // this.yearColumnHeader = this.sheetsService.userData[0].slice(this.nonYearColumnCount).filter(ud => {
+          //   return ud;
+          // });
           this.maxReceipt = this.getMaxReceipt();
         }
       },
@@ -324,6 +329,17 @@ export class UserComponent {
         // alert('user logout');
       }
     });
+  }
+
+  getActiveYearHeaders(count) {
+    this.sheetsService.userData[0].forEach((h, i) => {
+      for (let index = count; index >= 0; index--) {
+        if ((this.currentYear - index) == Number(h)) {
+          this.activeYearColumns.push({'header': h, 'index': i});
+        }
+      }
+    });
+    console.log('activeYear: ', this.activeYearColumns);
   }
 
   fetchGujSheetData(sheetname) {
@@ -431,8 +447,11 @@ export class UserComponent {
 
   async saveReceiptData() {
     this.isLoading = true;
-    this.receiptEditData.user[this.receiptEditData.colId] = this.receiptEditData.cellValue == null ? 'N/A' : this.receiptEditData.cellValue;
+    this.receiptEditData.user[this.receiptEditData.colId] = this.receiptEditData.cellValue == null ? '' : this.receiptEditData.cellValue;
     console.log('receiptEditData: ', this.receiptEditData);
+    // this.userArray[this.receiptEditData.rowId-1][this.receiptEditData.colId] = this.receiptEditData.user[this.receiptEditData.colId];
+    // console.log(this.userArray[this.receiptEditData.rowId-1][this.receiptEditData.colId]);
+    // console.log('this.userArray:', this.userArray);
     // console.log('updated user is: ', this.receiptEditData.user);
     // update sheet data
     let rawAddress = parseInt(this.receiptEditData.user[0]) + 1;
@@ -443,7 +462,8 @@ export class UserComponent {
     })
     // console.log('after cleaer is: ', this.receiptEditData);
     // fetch sheet data
-    await this.fetchSheetData('sheet1');
+    // await this.fetchSheetData('sheet1');
+    // this.getMaxReceipt();
     this.isLoading = false;
     this.modelRef.dismiss();
 
@@ -856,87 +876,87 @@ export class UserComponent {
     return result;
   }
   
-  downloadAsPDF2() {
-    var hdr = [...[
-        "#",
-        "Member Name",
-      ]
-      , ...this.yearColumnHeader
-    ];
-    var headers = this.createHeaders(hdr);
+  // downloadAsPDF2() {
+  //   var hdr = [...[
+  //       "#",
+  //       "Member Name",
+  //     ]
+  //     , ...this.yearColumnHeader
+  //   ];
+  //   var headers = this.createHeaders(hdr);
     
-    var doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
-    doc.setFontSize(28);
-    doc.addFont("../../../../assets/fonts/NotoSansGujarati.ttf","NotoSansGujarati","normal");
-    doc.setFont("NotoSansGujarati", "normal");
-    // if (this.selectedLanguage == 'English') {
-    //   doc.setFont("helvetica", "bold");
-    // } else {
-    // }
+  //   var doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
+  //   doc.setFontSize(28);
+  //   doc.addFont("../../../../assets/fonts/NotoSansGujarati.ttf","NotoSansGujarati","normal");
+  //   doc.setFont("NotoSansGujarati", "normal");
+  //   // if (this.selectedLanguage == 'English') {
+  //   //   doc.setFont("helvetica", "bold");
+  //   // } else {
+  //   // }
 
-    doc.text(this.userArray[1][12], 105, 15,  null, "center");
-    // doc.text("This is centred text.", 105, 80, null, null, "center");
-    doc.table(10, 20, this.generateData(this.userArray), headers, { autoSize: true, headerTextColor: 'red', headerBackgroundColor: 'yellow' });
-    doc.save('FilteredTable.pdf');
-  }
+  //   doc.text(this.userArray[1][12], 105, 15,  null, "center");
+  //   // doc.text("This is centred text.", 105, 80, null, null, "center");
+  //   doc.table(10, 20, this.generateData(this.userArray), headers, { autoSize: true, headerTextColor: 'red', headerBackgroundColor: 'yellow' });
+  //   doc.save('FilteredTable.pdf');
+  // }
   
   
 
-  downloadAsPDF3() {
-    const hdr = ["#", "Member Name", ...this.yearColumnHeader];
-    const headers = this.createHeaders(hdr);
-    const rows = this.generateData( this.userArray);
+  // downloadAsPDF3() {
+  //   const hdr = ["#", "Member Name", ...this.yearColumnHeader];
+  //   const headers = this.createHeaders(hdr);
+  //   const rows = this.generateData( this.userArray);
   
-    const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
-    doc.setFontSize(28);
-    doc.addFont("../../../../assets/fonts/NotoSansGujarati.ttf", "NotoSansGujarati", "normal");
-    doc.setFont("NotoSansGujarati", "normal");
+  //   const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
+  //   doc.setFontSize(28);
+  //   doc.addFont("../../../../assets/fonts/NotoSansGujarati.ttf", "NotoSansGujarati", "normal");
+  //   doc.setFont("NotoSansGujarati", "normal");
   
-    // Title
-    doc.text("ભીખુભાઈ કૈલાશચંદ્ર ગુપ્તા", 105, 15, null, "center");
+  //   // Title
+  //   doc.text("ભીખુભાઈ કૈલાશચંદ્ર ગુપ્તા", 105, 15, null, "center");
   
-    // Add table
-    // doc.autoTable({
-    //   head: [headers],
-    //   body: rows,
-    //   styles: { font: "NotoSansGujarati", fontStyle: "normal" },
-    // });
+  //   // Add table
+  //   // doc.autoTable({
+  //   //   head: [headers],
+  //   //   body: rows,
+  //   //   styles: { font: "NotoSansGujarati", fontStyle: "normal" },
+  //   // });
   
-    doc.save('FilteredTable.pdf');
-  }
+  //   doc.save('FilteredTable.pdf');
+  // }
 
 
 
-  public downloadAsPDF1(): void {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-      putOnlyUsedFonts: true,
-      // unit: 'px',
-      // format: 'a4',
-    });
+  // public downloadAsPDF1(): void {
+  //   const doc = new jsPDF({
+  //     orientation: 'landscape',
+  //     putOnlyUsedFonts: true,
+  //     // unit: 'px',
+  //     // format: 'a4',
+  //   });
   
-    const pdfTable = this.pdfTable.nativeElement;
+  //   const pdfTable = this.pdfTable.nativeElement;
   
-    // Clone table and make it visible
-    const clonedTable = pdfTable.cloneNode(true) as HTMLElement;
-    clonedTable.style.overflow = 'visible';
-    clonedTable.style.maxHeight = 'none';
-    clonedTable.style.display = 'block'; // Ensure visibility
-    document.body.appendChild(clonedTable);
+  //   // Clone table and make it visible
+  //   const clonedTable = pdfTable.cloneNode(true) as HTMLElement;
+  //   clonedTable.style.overflow = 'visible';
+  //   clonedTable.style.maxHeight = 'none';
+  //   clonedTable.style.display = 'block'; // Ensure visibility
+  //   document.body.appendChild(clonedTable);
   
-    doc.html(clonedTable, {
-      callback: (doc) => {
-        doc.save('FilteredTable.pdf');
-        document.body.removeChild(clonedTable); // Clean up
-      },
-      x: 15,
-      y: 15,
-      html2canvas: {
-        scale: 0.25, // High resolution
-        useCORS: true, // Handle cross-origin resources
-      },
-    });
-  }
+  //   doc.html(clonedTable, {
+  //     callback: (doc) => {
+  //       doc.save('FilteredTable.pdf');
+  //       document.body.removeChild(clonedTable); // Clean up
+  //     },
+  //     x: 15,
+  //     y: 15,
+  //     html2canvas: {
+  //       scale: 0.25, // High resolution
+  //       useCORS: true, // Handle cross-origin resources
+  //     },
+  //   });
+  // }
 
 
   generateData(data) {
@@ -958,6 +978,17 @@ export class UserComponent {
   }
   
   downloadAsPDF() {
+    // ref: https://www.npmjs.com/package/pdfmake
+  //   var hdr1 = [...[
+  //     "#",
+  //     "Member Name",
+  //   ]
+  //   , ...this.yearColumnHeader
+  // ];
+  // var headers = this.createHeaders(hdr1);
+
+
+
     // Table headers
     const hdr = [
       {text: '#', style: 'tableHeader'}, 
