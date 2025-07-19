@@ -21,8 +21,8 @@ export class GoogleAuthService {
     // scope: 'openid profile email',
     showDebugInformation: true,
     scope: 'openid profile email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets',
-    redirectUri: 'https://ajay-gupta25.github.io/mvanand/', // Working server
-    // redirectUri: window.location.origin, // Working local
+    // redirectUri: 'https://ajay-gupta25.github.io/mvanand/', // Working server
+    redirectUri: window.location.origin, // Working local
   }
 
   // private userLoggedIn = new BehaviorSubject<boolean>(false);

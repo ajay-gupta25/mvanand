@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import {jsPDF} from 'jspdf';
 import { lastValueFrom } from 'rxjs';
 import 'jspdf-autotable';
+import html2canvas from 'html2canvas';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 
 
@@ -48,7 +49,7 @@ export class UserComponent {
   edituserId: string;
   companyId: string;
   deletedUserId: string;
-  search: string = '';
+  // search: string = '';
   companyNamesObj: any = [];
   public isLoading: boolean = true;
   locations: any = [];
@@ -257,10 +258,10 @@ export class UserComponent {
       }
   }
 
-  enableSearch() {
-    this.isSearchActivate = !this.isSearchActivate;
-    this.resetSearch();
-  }
+  // enableSearch() {
+  //   this.isSearchActivate = !this.isSearchActivate;
+  //   this.resetSearch();
+  // }
 
   getMaxReceipt() {
     let max = 0;
@@ -313,6 +314,7 @@ export class UserComponent {
           this.userHeader.forEach(header => {
             this.searchValues[header] = '';
           });
+          this.searchValues['MemberName'] = '';
           this.getActiveYearHeaders(this.showNumberOfYears);
           if (!localStorage.getItem('columnControl') || this.checkTogglesState()) {
             this.manageColumn();
@@ -332,6 +334,7 @@ export class UserComponent {
   }
 
   getActiveYearHeaders(count) {
+    this.activeYearColumns = [];
     this.sheetsService.userData[0].forEach((h, i) => {
       for (let index = count; index >= 0; index--) {
         if ((this.currentYear - index) == Number(h)) {
@@ -364,6 +367,18 @@ export class UserComponent {
 
   hasPermission(modules,accestype): boolean {
     return this.permissionService.hasPermission(modules,accestype);
+  }
+
+  conditionallyShowCellData(cell) {
+    if(!cell && cell !== 0) {
+      return 'N/A';
+    } else if (cell == 111) {
+      return 'Senior';
+    } else if (cell == 222) {
+      return 'New';
+    } else {
+      return cell;
+    }
   }
   // onTableDataChange(event: any) {
   //   this.currentPage = event;
@@ -487,6 +502,7 @@ export class UserComponent {
     this.imageUploadstatus = false;
     this.selectedFile = null;
     // this.getLocations();
+    console.log(this.activeSearch, this.searchValues);
     this.filterUsers();
     this.checkAuthStatus();
 
@@ -542,7 +558,7 @@ export class UserComponent {
   filterUsers() {
     this.Objectfilter['page'] = this.currentPage;
     this.Objectfilter['limit'] = this.itemsPerPage;
-    this.Objectfilter['search'] = this.search;
+    // this.Objectfilter['search'] = this.search;
     // this.userService.filterUsers(this.Objectfilter).subscribe({
     //   next: (res: any) => {
     //     if (res.success === 1) {
@@ -769,25 +785,25 @@ export class UserComponent {
     return lowerA.localeCompare(lowerB) * direction;
   }
 
-  filterUserBySearch() {
-    const query = this.search.toLowerCase();
-    this.activeSearch = 'combine';
+  // filterUserBySearch() {
+  //   const query = this.search.toLowerCase();
+  //   this.activeSearch = 'combine';
 
-    // Reset the table if the search value is empty
-    if (!query) {
-      this.resetSearch();
-      return;
-    }
+  //   // Reset the table if the search value is empty
+  //   if (!query) {
+  //     this.resetSearch();
+  //     return;
+  //   }
 
-    this.userArray = this.sheetsService.userData.slice(1).filter(user => 
-      user[1].toLowerCase().includes(query) ||
-      user[2].toLowerCase().includes(query) ||
-      user[3].toLowerCase().includes(query) ||
-      user[4].toLowerCase().includes(query) ||
-      user[5].toLowerCase().includes(query) ||
-      user[7].toLowerCase().includes(query)
-    );
-  }
+  //   this.userArray = this.sheetsService.userData.slice(1).filter(user => 
+  //     user[1].toLowerCase().includes(query) ||
+  //     user[2].toLowerCase().includes(query) ||
+  //     user[3].toLowerCase().includes(query) ||
+  //     user[4].toLowerCase().includes(query) ||
+  //     user[5].toLowerCase().includes(query) ||
+  //     user[7].toLowerCase().includes(query)
+  //   );
+  // }
 
   onSearch(column: string, event: Event) {
     const value = (event.target as HTMLInputElement).value.trim().toLowerCase(); // Cast to HTMLInputElement
@@ -797,6 +813,9 @@ export class UserComponent {
         this.searchValues[header] = '';
       }
     });
+    if (column !== 'MemberName') {
+      this.searchValues['MemberName'] = '';
+    }
   
     this.activeSearch = column;
   
@@ -961,17 +980,22 @@ export class UserComponent {
 
   generateData(data) {
     let tableData = data.map((row, index) => {
+      console.log('row data: ----0',row[this.nonYearColumnCount + 0])
+      console.log('row data: ----1',row[this.nonYearColumnCount + 1])
+      console.log('row data: ----2',row[this.nonYearColumnCount + 2])
+      console.log('row data: ----3',row[this.nonYearColumnCount + 3])
+      console.log('row data: ----4',row[this.nonYearColumnCount + 4])
       let memberData = '';
       if (this.selectedLanguage == 'English') memberData = `${row[1]} ${row[2]} ${row[3]}`;
       else memberData = `${row[12]} ${row[13]} ${row[14]}`;
       return [
         {text: (index + 1).toString(), style: 'tableData'}, // #
         {text: memberData, style: 'tableData'}, // Member Name
-        {text: row[this.nonYearColumnCount + 0] || 'N/A', style: 'tableData'}, // 2022
-        {text: row[this.nonYearColumnCount + 1] || 'N/A', style: 'tableData'}, // 2023
-        {text: row[this.nonYearColumnCount + 2] || 'N/A', style: 'tableData'}, // 2024
-        {text: row[this.nonYearColumnCount + 3] || 'N/A', style: 'tableData'}, // 2025
-        {text: row[this.nonYearColumnCount + 4] || 'N/A', style: 'tableData'}, // 2026
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 0]), style: 'tableData'}, // 2022
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 1]), style: 'tableData'}, // 2023
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 2]), style: 'tableData'}, // 2024
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 3]), style: 'tableData'}, // 2025
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 4]), style: 'tableData'}, // 2026
       ];
     });
     return tableData;
@@ -1056,7 +1080,622 @@ export class UserComponent {
     // Generate and download the PDF
     pdfMake.createPdf(docDefinition).download('MvAnand.pdf');
   }
+
+public async downloadTranscriptFast() {
+  const table = document.getElementById('transcript_inner') as HTMLElement;
+  if (!table) return;
+  this.isLoading = true;
+
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  const thead = table.querySelector('thead') as HTMLElement;
+  const tbody = table.querySelector('tbody') as HTMLElement;
+  const rows = Array.from(tbody.querySelectorAll('tr')) as HTMLElement[];
+
+  // Helper to render an element to canvas
+  const renderToCanvas = async (element: HTMLElement) => {
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    return canvas;
+  };
+
+  // 1. Measure thead height (if present)
+  let theadHeight = 0;
+  if (thead) {
+    const theadCanvas = await renderToCanvas(thead);
+    theadHeight = (theadCanvas.height * pdfWidth) / theadCanvas.width;
+  }
+
+  // 2. Measure single row height
+  let rowHeight = 0;
+  if (rows.length > 0) {
+    const tempTable = document.createElement('table');
+    tempTable.style.width = table.style.width || '100%';
+    if (thead) tempTable.appendChild(thead.cloneNode(true));
+    const tbodyClone = document.createElement('tbody');
+    tbodyClone.appendChild(rows[0].cloneNode(true));
+    tempTable.appendChild(tbodyClone);
+    tempTable.style.position = 'absolute';
+    tempTable.style.left = '-9999px';
+    document.body.appendChild(tempTable);
+    const rowCanvas = await renderToCanvas(tempTable);
+    rowHeight = (rowCanvas.height * pdfWidth) / rowCanvas.width - theadHeight;
+    document.body.removeChild(tempTable);
+  }
+
+  // 3. Calculate rows per page
+  const rowsPerPage = rowHeight > 0 ? Math.floor((pdfHeight - theadHeight) / rowHeight) : rows.length;
+
+  // 4. Batch process rows
+  let i = 0;
+  while (i < rows.length) {
+    const batchRows = rows.slice(i, i + rowsPerPage);
+
+    // Create batch container
+    const container = document.createElement('table');
+    container.style.width = table.style.width || '100%';
+    if (thead) container.appendChild(thead.cloneNode(true));
+    const tbodyClone = document.createElement('tbody');
+    batchRows.forEach(row => tbodyClone.appendChild(row.cloneNode(true)));
+    container.appendChild(tbodyClone);
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    document.body.appendChild(container);
+
+    // Render and add to PDF
+    const canvas = await renderToCanvas(container);
+    const imgData = canvas.toDataURL('image/png');
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+
+    document.body.removeChild(container);
+
+    if (i + rowsPerPage < rows.length) pdf.addPage();
+    i += rowsPerPage;
+  }
+
+  pdf.save('Transcript.pdf');
+  this.isLoading = false;
+}  
+
+  public async downloadTranscriptNoGaps() {
+    const table = document.getElementById('transcript_inner') as HTMLElement;
+    if (!table) return;
+    this.isLoading = true;
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    let currentY = 0;
+
+    const thead = table.querySelector('thead') as HTMLElement;
+    const tbody = table.querySelector('tbody') as HTMLElement;
+    const rows = Array.from(tbody.querySelectorAll('tr')) as HTMLElement[];
+
+    // Helper to render a batch of rows
+    const renderBatch = async (rows: HTMLElement[], includeThead: boolean) => {
+      const container = document.createElement('table');
+      container.style.width = table.style.width || '100%';
+      if (includeThead && thead) container.appendChild(thead.cloneNode(true));
+      const tbodyClone = document.createElement('tbody');
+      rows.forEach(row => tbodyClone.appendChild(row.cloneNode(true)));
+      container.appendChild(tbodyClone);
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      document.body.appendChild(container);
+      const canvas = await html2canvas(container, { scale: 2, useCORS: true });
+      document.body.removeChild(container);
+      return canvas;
+    };
+
+    let i = 0;
+    while (i < rows.length) {
+      let batchRows = [];
+      let batchHeight = 0;
+      let batchCanvas = null;
+
+      // Dynamically add rows until the batch image would overflow the page
+      for (let j = i; j < rows.length; j++) {
+        console.log('Adding row:', j, 'Current Y:', currentY, 'Batch Height:', batchHeight);
+        batchRows.push(rows[j]);
+        batchCanvas = await renderBatch(batchRows, currentY === 0 && thead != null);
+        const imgHeight = (batchCanvas.height * pdfWidth) / batchCanvas.width;
+        if (currentY + imgHeight > pdfHeight) {
+          // If only one row doesn't fit, force it to next page
+          if (batchRows.length === 1) break;
+          batchRows.pop();
+          break;
+        }
+        batchHeight = imgHeight;
+      }
+
+      // Render and add batch to PDF
+      if (batchRows.length > 0) {
+        console.log('Rendering batch:', i, 'Rows:', batchRows.length);
+        batchCanvas = await renderBatch(batchRows, currentY === 0 && thead != null);
+        const imgData = batchCanvas.toDataURL('image/png');
+        const imgHeight = (batchCanvas.height * pdfWidth) / batchCanvas.width;
+        if (currentY + imgHeight > pdfHeight && currentY !== 0) {
+          pdf.addPage();
+          currentY = 0;
+        }
+        pdf.addImage(imgData, 'PNG', 0, currentY, pdfWidth, imgHeight);
+        currentY += imgHeight;
+        i += batchRows.length;
+      } else {
+        // If no rows fit, start a new page
+        pdf.addPage();
+        currentY = 0;
+      }
+    }
+
+    pdf.save('Transcript.pdf');
+    this.isLoading = false;
+  }
+
+  // public downloadTranscript2() {
+  //   const table = document.getElementById('transcript_inner') as HTMLElement;
+  //   const fileName = Math.random().toString(36).slice(2);
+  //   const BATCH_SIZE = 30; // Process 30 rows at a time
   
+  //   if (!table) {
+  //     this.isLoading = false;
+  //     return;
+  //   }
+  
+  //   this.isLoading = true;
+  //   const originalOverflow = table.style.overflow;
+  //   const originalMaxHeight = table.style.maxHeight;
+  //   table.style.overflow = 'visible';
+  //   table.style.maxHeight = 'none';
+  
+  //   // Initialize jsPDF
+  //   const pdf = new jsPDF('p', 'mm', 'a4');
+  //   const pdfWidth = pdf.internal.pageSize.getWidth();
+  //   const pdfHeight = pdf.internal.pageSize.getHeight();
+  //   let currentY = 0; // Tracks the current Y position on the page
+  
+  //   // Get table elements
+  //   const thead = table.querySelector('thead') as HTMLElement;
+  //   const tbody = table.querySelector('tbody') as HTMLElement;
+  //   const rows = Array.from(tbody.querySelectorAll('tr')) as HTMLElement[];
+  //   const noDataRow = tbody.querySelector('tr td[colspan]') as HTMLElement;
+  
+  //   // Function to render an element to canvas
+  //   const renderToCanvas = async (element: HTMLElement) => {
+  //     const canvas = await html2canvas(element, {
+  //       scrollY: -window.scrollY,
+  //       scale: 2,
+  //       useCORS: true,
+  //     });
+  //     return canvas;
+  //   };
+  
+  //   // Function to create a temporary container for a batch of rows
+  //   const createBatchContainer = (rows: HTMLElement[], includeThead: boolean = false) => {
+  //     const container = document.createElement('div');
+  //     container.style.display = 'table';
+  //     container.style.width = table.style.width || '100%';
+  //     container.style.borderCollapse = 'collapse';
+  
+  //     // Clone thead if needed
+  //     if (includeThead && thead) {
+  //       const theadClone = thead.cloneNode(true) as HTMLElement;
+  //       container.appendChild(theadClone);
+  //     }
+  
+  //     // Clone rows for the batch
+  //     rows.forEach((row) => {
+  //       const rowClone = row.cloneNode(true) as HTMLElement;
+  //       rowClone.style.display = 'table-row';
+  //       container.appendChild(rowClone);
+  //     });
+  
+  //     // Append to document temporarily (off-screen)
+  //     container.style.position = 'absolute';
+  //     container.style.left = '-9999px';
+  //     document.body.appendChild(container);
+  //     return container;
+  //   };
+  
+  //   // Process elements in batches
+  //   const processBatch = async (startIndex: number, includeThead: boolean = false) => {
+  //     // Finalize PDF when done
+  //     if (startIndex >= rows.length && !includeThead) {
+  //       pdf.save(`${fileName}.pdf`);
+  //       table.style.overflow = originalOverflow;
+  //       table.style.maxHeight = originalMaxHeight;
+  //       this.isLoading = false;
+  //       return;
+  //     }
+  
+  //     // Handle "No data" case
+  //     if (noDataRow && startIndex === 0) {
+  //       const canvas = await renderToCanvas(noDataRow);
+  //       const imgData = canvas.toDataURL('image/png');
+  //       const imgProps = pdf.getImageProperties(imgData);
+  //       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+  //       if (currentY + imgHeight > pdfHeight) {
+  //         pdf.addPage();
+  //         currentY = 0;
+  //       }
+  
+  //       pdf.addImage(imgData, 'PNG', 0, currentY, pdfWidth, imgHeight);
+  //       currentY += imgHeight;
+  
+  //       // Finalize PDF
+  //       pdf.save(`${fileName}.pdf`);
+  //       table.style.overflow = originalOverflow;
+  //       table.style.maxHeight = originalMaxHeight;
+  //       this.isLoading = false;
+  //       return;
+  //     }
+  
+  //     // Render thead independently if needed
+  //     if (includeThead && thead && startIndex === 0) {
+  //       const theadCanvas = await renderToCanvas(thead);
+  //       const theadImgData = theadCanvas.toDataURL('image/png');
+  //       const theadProps = pdf.getImageProperties(theadImgData);
+  //       const theadHeight = (theadProps.height * pdfWidth) / theadProps.width;
+  
+  //       if (currentY + theadHeight > pdfHeight) {
+  //         pdf.addPage();
+  //         currentY = 0;
+  //       }
+  
+  //       pdf.addImage(theadImgData, 'PNG', 0, currentY, pdfWidth, theadHeight);
+  //       currentY += theadHeight;
+  //     }
+  
+  //     // Calculate batch
+  //     const batchRows = rows.slice(startIndex, startIndex + BATCH_SIZE);
+  //     if (batchRows.length === 0) {
+  //       pdf.save(`${fileName}.pdf`);
+  //       table.style.overflow = originalOverflow;
+  //       table.style.maxHeight = originalMaxHeight;
+  //       this.isLoading = false;
+  //       return;
+  //     }
+  
+  //     // Create and render batch
+  //     const batchContainer = createBatchContainer(batchRows, includeThead && startIndex > 0);
+  //     const canvas = await renderToCanvas(batchContainer);
+  //     const imgData = canvas.toDataURL('image/png');
+  //     const imgProps = pdf.getImageProperties(imgData);
+  //     const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+  //     // Check if batch fits on the current page
+  //     if (currentY + imgHeight > pdfHeight) {
+  //       pdf.addPage();
+  //       currentY = 0;
+  //       document.body.removeChild(batchContainer); // Clean up
+  //       await processBatch(startIndex, true); // Retry with thead on new page
+  //       return;
+  //     }
+  
+  //     pdf.addImage(imgData, 'PNG', 0, currentY, pdfWidth, imgHeight);
+  //     currentY += imgHeight;
+  
+  //     // Clean up
+  //     document.body.removeChild(batchContainer);
+  
+  //     // Process next batch
+  //     processBatch(startIndex + BATCH_SIZE);
+  //   };
+  
+  //   // Start processing
+  //   setTimeout(() => {
+  //     processBatch(0, true); // Start with thead
+  //   }, 50);
+  // }
+
+
+  // public downloadTranscriptRoWbyRow() {
+  //   const table = document.getElementById('transcript_inner') as HTMLElement;
+  //   const fileName = Math.random().toString(36).slice(2);
+  
+  //   if (!table) {
+  //     this.isLoading = false;
+  //     return;
+  //   }
+  
+  //   this.isLoading = true;
+  //   const originalOverflow = table.style.overflow;
+  //   const originalMaxHeight = table.style.maxHeight;
+  //   table.style.overflow = 'visible';
+  //   table.style.maxHeight = 'none';
+  
+  //   // Initialize jsPDF
+  //   const pdf = new jsPDF('p', 'mm', 'a4');
+  //   const pdfWidth = pdf.internal.pageSize.getWidth();
+  //   const pdfHeight = pdf.internal.pageSize.getHeight();
+  //   let currentY = 0; // Tracks the current Y position on the page
+  
+  //   // Get table elements
+  //   const thead = table.querySelector('thead') as HTMLElement;
+  //   const tbody = table.querySelector('tbody') as HTMLElement;
+  //   const rows = Array.from(tbody.querySelectorAll('tr')) as HTMLElement[];
+  //   const noDataRow = tbody.querySelector('tr td[colspan]') as HTMLElement; // Check for "No data available"
+  
+  //   // Function to render an element to canvas
+  //   const renderToCanvas = async (element: HTMLElement) => {
+  //     const canvas = await html2canvas(element, {
+  //       scrollY: -window.scrollY,
+  //       scale: 2,
+  //       useCORS: true,
+  //     });
+  //     return canvas;
+  //   };
+  
+  //   // Process elements sequentially
+  //   const processElement = async (index: number, includeThead: boolean = false) => {
+  //     // Finalize PDF when done
+  //     if (index >= rows.length && !includeThead) {
+  //       pdf.save(`${fileName}.pdf`);
+  //       table.style.overflow = originalOverflow;
+  //       table.style.maxHeight = originalMaxHeight;
+  //       this.isLoading = false;
+  //       return;
+  //     }
+  
+  //     // Render thead on the first page or if specified
+  //     if (includeThead && thead) {
+  //       const theadCanvas = await renderToCanvas(thead);
+  //       const theadImgData = theadCanvas.toDataURL('image/png');
+  //       const theadProps = pdf.getImageProperties(theadImgData);
+  //       const theadHeight = (theadProps.height * pdfWidth) / theadProps.width;
+  
+  //       if (currentY + theadHeight > pdfHeight) {
+  //         pdf.addPage();
+  //         currentY = 0;
+  //       }
+  
+  //       pdf.addImage(theadImgData, 'PNG', 0, currentY, pdfWidth, theadHeight);
+  //       currentY += theadHeight;
+  //     }
+  
+  //     // If no data is available, handle the "No data" row
+  //     if (noDataRow && index === 0) {
+  //       const canvas = await renderToCanvas(noDataRow);
+  //       const imgData = canvas.toDataURL('image/png');
+  //       const imgProps = pdf.getImageProperties(imgData);
+  //       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+  //       if (currentY + imgHeight > pdfHeight) {
+  //         pdf.addPage();
+  //         currentY = 0;
+  //       }
+  
+  //       pdf.addImage(imgData, 'PNG', 0, currentY, pdfWidth, imgHeight);
+  //       currentY += imgHeight;
+  
+  //       // Finalize PDF
+  //       pdf.save(`${fileName}.pdf`);
+  //       table.style.overflow = originalOverflow;
+  //       table.style.maxHeight = originalMaxHeight;
+  //       this.isLoading = false;
+  //       return;
+  //     }
+  
+  //     // Process each row
+  //     if (index < rows.length) {
+  //       console.log('Processing index:', index);
+  //       const row = rows[index];
+  //       console.log('Processing row:', row);
+  //       const originalDisplay = row.style.display;
+  //       row.style.display = 'table-row'; // Ensure row is visible
+  //       row.style.display = originalDisplay; // Restore display
+
+        
+  
+  //       const canvas = await renderToCanvas(row);
+  //       const imgData = canvas.toDataURL('image/png');
+  //       const imgProps = pdf.getImageProperties(imgData);
+  //       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+  //       // Check if row fits on the current page
+  //       if (currentY + imgHeight > pdfHeight) {
+  //         pdf.addPage();
+  //         currentY = 0;
+  //         // Optionally include thead on new pages
+  //         await processElement(index, true);
+  //         return;
+  //       }
+  
+  //       pdf.addImage(imgData, 'PNG', 0, currentY, pdfWidth, imgHeight);
+  //       currentY += imgHeight;
+  
+  //     }
+  
+  //     // Process next row
+  //     processElement(index + 1);
+  //   };
+  
+  //   // Start processing
+  //   setTimeout(() => {
+  //     processElement(0, true); // Start with thead
+  //   }, 5);
+  // }
+  
+
+  // public downloadTranscript() {
+  //   const table = document.getElementById('transcript_inner') as HTMLElement;
+  //   // const fileName = Math.random().toString(36).slice(2);
+  //   const fileName = `${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}-${new Date().getHours().toString().padStart(2,'0')}-${new Date().getMinutes().toString().padStart(2,'0')}`;
+  //   const BATCH_SIZE = 30; // Process 30 rows at a time
+  
+  //   if (!table) {
+  //     this.isLoading = false;
+  //     return;
+  //   }
+  
+  //   this.isLoading = true;
+  //   const originalOverflow = table.style.overflow;
+  //   const originalMaxHeight = table.style.maxHeight;
+  //   table.style.overflow = 'visible';
+  //   table.style.maxHeight = 'none';
+  
+  //   // Initialize jsPDF
+  //   const pdf = new jsPDF('p', 'mm', 'a4');
+  //   const pdfWidth = pdf.internal.pageSize.getWidth();
+  //   const pdfHeight = pdf.internal.pageSize.getHeight();
+  //   let currentY = 0; // Tracks the current Y position on the page
+  
+  //   // Get table elements
+  //   const thead = table.querySelector('thead') as HTMLElement;
+  //   const tbody = table.querySelector('tbody') as HTMLElement;
+  //   const colgroup = table.querySelector('colgroup') as HTMLElement;
+  //   const rows = Array.from(tbody.querySelectorAll('tr')) as HTMLElement[];
+  //   const noDataRow = tbody.querySelector('tr td[colspan]') as HTMLElement;
+  
+  //   // Function to render an element to canvas
+  //   const renderToCanvas = async (element: HTMLElement) => {
+  //     const canvas = await html2canvas(element, {
+  //       scrollY: -window.scrollY,
+  //       scale: 2,
+  //       useCORS: true,
+  //       logging: false,
+  //     });
+  //     return canvas;
+  //   };
+  
+  //   // Function to create a temporary container for a batch of rows
+  //   const createBatchContainer = (rows: HTMLElement[], includeThead: boolean = false) => {
+  //     const container = document.createElement('table');
+  //     container.style.width = table.style.width || '100%';
+  //     container.style.borderCollapse = table.style.borderCollapse || 'collapse';
+  //     container.style.tableLayout = table.style.tableLayout || 'auto';
+  //     container.style.fontSize = table.style.fontSize || 'inherit';
+  //     container.style.lineHeight = table.style.lineHeight || 'inherit';
+  //     container.className = table.className;
+  
+  //     // Copy colgroup and remove last column if exists
+  //     if (colgroup) {
+  //       const colgroupClone = colgroup.cloneNode(true) as HTMLElement;
+  //       const cols = colgroupClone.querySelectorAll('col');
+  //       if (cols.length > 0) {
+  //         cols[cols.length - 1].remove(); // Remove last col
+  //       }
+  //       container.appendChild(colgroupClone);
+  //     }
+  
+  //     // Clone thead and remove last column if needed
+  //     if (includeThead && thead) {
+  //       const theadClone = thead.cloneNode(true) as HTMLElement;
+  //       const headerRow = theadClone.querySelector('tr');
+  //       if (headerRow) {
+  //         const cells = headerRow.querySelectorAll('th, td');
+  //         if (cells.length > 0) {
+  //           cells[cells.length - 1].remove(); // Remove last th/td
+  //         }
+  //       }
+  //       container.appendChild(theadClone);
+  //     }
+  
+  //     // Clone rows for the batch and remove last column
+  //     const tbodyClone = document.createElement('tbody');
+  //     rows.forEach((row) => {
+  //       const rowClone = row.cloneNode(true) as HTMLElement;
+  //       const cells = rowClone.querySelectorAll('td, th');
+  //       if (cells.length > 0) {
+  //         cells[cells.length - 1].remove(); // Remove last td/th
+  //       }
+  //       rowClone.style.display = 'table-row';
+  //       tbodyClone.appendChild(rowClone);
+  //     });
+  //     container.appendChild(tbodyClone);
+  
+  //     // Append to document temporarily (off-screen)
+  //     container.style.position = 'absolute';
+  //     container.style.left = '-9999px';
+  //     document.body.appendChild(container);
+  //     return container;
+  //   };
+  
+  //   // Process elements in batches
+  //   const processBatch = async (startIndex: number, includeThead: boolean = false) => {
+  //     // Finalize PDF when done
+  //     if (startIndex >= rows.length && !includeThead) {
+  //       pdf.save(`${fileName}.pdf`);
+  //       table.style.overflow = originalOverflow;
+  //       table.style.maxHeight = originalMaxHeight;
+  //       this.isLoading = false;
+  //       return;
+  //     }
+  
+  //     // Handle "No data" case
+  //     if (noDataRow && startIndex === 0) {
+  //       const noDataRowClone = noDataRow.cloneNode(true) as HTMLElement;
+  //       // Adjust colspan if necessary
+  //       const colspan = parseInt(noDataRow.getAttribute('colspan') || '1');
+  //       if (colspan > 1) {
+  //         noDataRowClone.setAttribute('colspan', (colspan - 1).toString());
+  //       }
+  //       const canvas = await renderToCanvas(noDataRowClone);
+  //       const imgData = canvas.toDataURL('image/png');
+  //       const imgProps = pdf.getImageProperties(imgData);
+  //       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+  //       if (currentY + imgHeight > pdfHeight) {
+  //         pdf.addPage();
+  //         currentY = 0;
+  //       }
+  
+  //       pdf.addImage(imgData, 'PNG', 0, currentY, pdfWidth, imgHeight);
+  //       currentY += imgHeight;
+  
+  //       // Finalize PDF
+  //       pdf.save(`${fileName}.pdf`);
+  //       table.style.overflow = originalOverflow;
+  //       table.style.maxHeight = originalMaxHeight;
+  //       this.isLoading = false;
+  //       return;
+  //     }
+  
+  //     // Calculate batch
+  //     const batchRows = rows.slice(startIndex, startIndex + BATCH_SIZE);
+  //     if (batchRows.length === 0) {
+  //       pdf.save(`${fileName}.pdf`);
+  //       table.style.overflow = originalOverflow;
+  //       table.style.maxHeight = originalMaxHeight;
+  //       this.isLoading = false;
+  //       return;
+  //     }
+  
+  //     // Create and render batch
+  //     const batchContainer = createBatchContainer(batchRows, includeThead || startIndex === 0);
+  //     console.log('Batch container created:', batchRows, batchContainer);
+  //     const canvas = await renderToCanvas(batchContainer);
+  //     const imgData = canvas.toDataURL('image/png');
+  //     const imgProps = pdf.getImageProperties(imgData);
+  //     const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+  //     // Check if batch fits on the current page
+  //     if (currentY + imgHeight > pdfHeight) {
+  //       pdf.addPage();
+  //       currentY = 0;
+  //       document.body.removeChild(batchContainer); // Clean up
+  //       await processBatch(startIndex, true); // Retry with thead on new page
+  //       return;
+  //     }
+  
+  //     pdf.addImage(imgData, 'PNG', 0, currentY, pdfWidth, imgHeight);
+  //     currentY += imgHeight;
+  
+  //     // Clean up
+  //     document.body.removeChild(batchContainer);
+  
+  //     // Process next batch
+  //     processBatch(startIndex + BATCH_SIZE);
+  //   };
+  
+  //   // Start processing
+  //   setTimeout(() => {
+  //     processBatch(0, true); // Start with thead
+  //   }, 50);
+  // }
   
 
 }
