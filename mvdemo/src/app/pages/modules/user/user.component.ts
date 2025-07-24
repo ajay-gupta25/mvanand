@@ -11,7 +11,7 @@ import { GoogleAuthService } from '@services/auth/google-auth.service';
 import { Router } from '@angular/router';
 import {jsPDF} from 'jspdf';
 import { lastValueFrom } from 'rxjs';
-import 'jspdf-autotable';
+// import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 
@@ -212,6 +212,7 @@ export class UserComponent {
     let baseConfig;
     baseConfig = this.userHeader.reduce((config, column) => {
       config[column] = column === 'MemberName' ? true : false;
+      // config[column] = column === 'Mobile' ? true : false;    // -----------temp activated for testing
       return config;
     }, {});
 
@@ -369,16 +370,28 @@ export class UserComponent {
     return this.permissionService.hasPermission(modules,accestype);
   }
 
-  conditionallyShowCellData(cell) {
-    if(!cell && cell !== 0) {
-      return 'N/A';
-    } else if (cell == 111) {
-      return 'Senior';
-    } else if (cell == 222) {
-      return 'New';
-    } else {
-      return cell;
+  conditionallyShowCellData(cell, colId?: number) {
+    // year columns
+    if (colId && colId >= this.nonYearColumnCount) {
+      if(!cell && cell !== 0) {
+        return 'N/A';
+      } else if (cell == 111) {
+        return 'Senior';
+      } else if (cell == 222) {
+        return 'New';
+      }
     }
+    // mobile number column - return object with link info
+    if (colId && colId === 4) {
+      if (cell && cell.length == 10) {
+        return {
+          text: "+91 " + cell.slice(0, 10),
+          isLink: true,
+          value: cell
+        };
+      }
+    }
+    return cell;
   }
   // onTableDataChange(event: any) {
   //   this.currentPage = event;
@@ -991,11 +1004,11 @@ export class UserComponent {
       return [
         {text: (index + 1).toString(), style: 'tableData'}, // #
         {text: memberData, style: 'tableData'}, // Member Name
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 0]), style: 'tableData'}, // 2022
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 1]), style: 'tableData'}, // 2023
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 2]), style: 'tableData'}, // 2024
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 3]), style: 'tableData'}, // 2025
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 4]), style: 'tableData'}, // 2026
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 0], this.nonYearColumnCount), style: 'tableData'}, // 2022
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 1], this.nonYearColumnCount), style: 'tableData'}, // 2023
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 2], this.nonYearColumnCount), style: 'tableData'}, // 2024
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 3], this.nonYearColumnCount), style: 'tableData'}, // 2025
+        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 4], this.nonYearColumnCount), style: 'tableData'}, // 2026
       ];
     });
     return tableData;
@@ -1077,8 +1090,10 @@ export class UserComponent {
       },
     };
   
+    // const fileName = `${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}-${new Date().getHours().toString().padStart(2,'0')}-${new Date().getMinutes().toString().padStart(2,'0')}`;
+    const fileName = `MvAnand_${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}`;
     // Generate and download the PDF
-    pdfMake.createPdf(docDefinition).download('MvAnand.pdf');
+    pdfMake.createPdf(docDefinition).download(fileName+'.pdf');
   }
 
 public async downloadTranscriptFast() {
@@ -1232,6 +1247,70 @@ public async downloadTranscriptFast() {
 
     pdf.save('Transcript.pdf');
     this.isLoading = false;
+  }
+
+
+
+  generateWhatsappLinks(rowId: any): any {
+    console.log('generateWhatsappLinks called with entry:', rowId, this.userArray[rowId]);
+    let rowData = [this.userArray[rowId][12] + " " + this.userArray[rowId][13] + " " + this.userArray[rowId][14], this.userArray[rowId][4], ...this.userArray[rowId].slice(this.nonYearColumnCount)];
+    // let rowData = [this.userArray[rowId][12] + " " + this.userArray[rowId][13] + " " + this.userArray[rowId][14], this.userArray[rowId][4], this.userArray[rowId][15],this.userArray[rowId][16],this.userArray[rowId][17],this.userArray[rowId][18]];
+    console.log('Row Data:', rowData);
+    // return;
+    const yearLabels = [2022, 2023, 2024, 2025]; // add year here as next year coming like 2026, 2027, etc.
+    const results = [];
+
+    // for (const entry of data) {
+      const username = rowData[0];
+      const mobileRaw = rowData[1];
+      const dues = rowData.slice(2, 2+yearLabels.length);
+      const mobile = mobileRaw.trim();
+
+      if (mobile.toLowerCase() === 'n/a') {
+        results.push({ username, url: 'No Mobile number' });
+        // continue;
+      }
+
+      const unpaidYears = dues
+        .map((val: any, index: number) =>
+          val === "0" ? yearLabels[index] : null
+        )
+        .filter((y: any) => y !== null);
+
+      if (unpaidYears.length === 0) {
+        results.push({ username, url: 'No pending fees' });
+        // continue;
+      }
+      // alert user with reason
+      if (results.length > 0) {
+        alert(results[0].username + " : " +  results[0].url);
+        return;
+      }
+      // Generate WhatsApp message
+      if (unpaidYears.length > 0) {
+        const yearsStr = unpaidYears.join(', ');
+        const message = `જય રામજી કી, / નમસ્તે,
+          શ્રીમાન ${username} આપની આણંદ માથુર વૈશ્ય શાખા સભાની વાર્ષિક સદસ્ય ફી (₹500 એક વર્ષની) વર્ષ- ${yearsStr} ની બાકી હોવાથી આપને ફી વહેલા તકે જમા કરાવવા વિનંતી .🙏
+        લી.
+        ખજાનચી 
+        અજય આર. ગુપ્તા
+        આણંદ માથુર વૈશ્ય શાખા સભા, આણંદ`;
+
+        const encodedMessage = encodeURIComponent(message);
+        const fullUrl = `https://wa.me/91${mobile}?text=${encodedMessage}`;
+        // const shortUrl = await this.shortenUrl(fullUrl);
+
+        // results.push({ username, url: fullUrl });
+      // }
+        console.log('fullURL:', message, fullUrl);
+        window.open(fullUrl);
+        return fullUrl;
+      }
+    
+
+    
+    
+
   }
 
   // public downloadTranscript2() {

@@ -1,3 +1,33 @@
+// move to mvdemo and then
+// before generating build make changes in file: mvdemo/src/app/shared/services/auth/google-auth.service.ts
+// and make changes in "authConfig" object and set redirectUri of server required
+
+//----------AI suggested steps ------------------------//
+// then run the command: ng build --output-path docs --base-href /mvanand/
+// after that copy the docs folder to mvanand repo
+// and then commit the changes in mvanand repo
+// and then push the changes to mvanand repo
+// after that go to mvanand repo and then run the command: git subtree push --prefix=gh-pages origin main
+// this will push the changes to gh-pages branch of mvanand repo
+// after that go to settings of mvanand repo and then set the source to
+// gh-pages branch and then save the changes
+// after that go to the url: https://ajay-gupta25.github.io/mvanand/
+// and you will see the changes reflected there
+// if you want to test the changes locally then run the command: ng serve --open
+// and it will open the app in your default browser
+// if you want to test the changes in production then run the command: ng build --prod
+// and it will generate the build in the dist folder
+// after that copy the dist folder to mvanand repo
+// and then commit the changes in mvanand repo
+// and then push the changes to mvanand repo
+//----------AI suggested steps ------------------------//
+
+
+// ng build command: ng build --output-path docs --base-href /mvanand/
+// after that copy the docs folder to mvanand repo and then push the changes to mvanand repo
+// Do not forget to change the redirectUri in mvdemo/src/app/shared/services/auth/google-auth.service.ts file 
+// back to window.location.origin to run the local
+
 // Enums
 import { EnvName } from '@enums/environment.enum';
 
