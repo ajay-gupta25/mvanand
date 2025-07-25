@@ -1,9 +1,10 @@
-<app-layout-header (messageEvent)="getSelectedLanguage($event)" (downloadEvent)="downloadAsPDF()"></app-layout-header>
+<app-layout-header (messageEvent)="getSelectedLanguage($event)" (downloadEvent)="downloadAsPDF()" [maxReceipt]="maxReceipt"></app-layout-header>
 <!-- <p>{{ selectedLanguage }}</p> -->
 <app-page-layout> 
     <div class="main_content">
         <app-progress-bar *ngIf="isLoading"></app-progress-bar>
         <ng-container *ngIf="!this.gAuthService.identityClaims">
+            <h1>Session expired! Clear cache and login again!</h1>
         </ng-container>
         <ng-container *ngIf="this.gAuthService.identityClaims">
             <!-- <app-settings></app-settings> -->
@@ -137,9 +138,9 @@
                 <!-- {{ - userArray.length}} -->
             </div>
             <!-- {{userHeader | json}} -->
-            <div class="page_header_right btn_group">
+            <!-- <div class="page_header_right btn_group">
                 <h6 class="page_header_right btn_group">Last Added: {{maxReceipt}}</h6>
-            </div>
+            </div> -->
             <div class="main_datatable">
                 <div class="data_table">
                     <div class="page-container">
@@ -219,64 +220,11 @@
                     </div>                   
                     </div>
                 </div>
-                <!-- <div class="datatable_footer d-flex align-content-center justify-content-between">
-                    <div class="view_records_by inline_label_field">
-                        <label for="">View records by:</label>
-                        <select class="form-control w-auto" [(ngModel)]="itemsPerPage" (change)="onTableSizeChange($event)">
-                          <option value=10>10</option>
-                          <option value=25>25</option>
-                          <option value=50>50</option>
-                          <option value=100>100</option>
-                        </select>
-                    </div>
-                    <div class="datatable_pagination">
-                        <ul class="pagination_nav m-0">
-                        </ul>
-                        <pagination-controls (pageChange)="onTableDataChange($event)"
-                        (pageSizeChange)="onTableSizeChange($event)"></pagination-controls>
-                    </div>
-                </div> -->
             </div>
 
         </ng-container>
     </div>
 </app-page-layout>
-<ng-template #import_popup let-modal>
-    <div class="modal_box">
-        <div class="modal-header">
-            <h4 class="modal-title">Import bulk users to onboard in the platform</h4>
-            <p>All the fields should be matched as per the template*</p>
-            <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"><i
-                    class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="modal-body">
-            <div class="import_file mb-4">
-                <input type="file" id="import_csv_file" (change)="onFileSelected($event)">
-                <label for="import_csv_file">
-                    <div *ngIf="!imageUploadstatus">
-                        <img src="../../../../assets/img/import-icon.png" alt="">
-
-                        <p>Please import the CSV file from device</p>
-                    </div>
-                    <div class="uploaded_filename" *ngIf="imageUploadstatus">
-                        <i class="fa-solid fa-file-csv"></i>
-                        <p>{{fileName}}</p>
-                    </div>
-                </label>
-
-            </div>
-
-            <!-- <div class="inline_label_field">
-                <label for="">Don't have the template?</label>
-                <button class="btn btn-secondary"  (click)="downloadFile()">Download template</button>
-            </div> -->
-        </div>
-        <div class="modal-footer btn_group justify-content-start">
-            <button class="btn btn-secondary" (click)="ontryagain()">Try Again</button>
-            <!-- <button class="btn btn-primary" [disabled]="!activeuploadbutton || isImportButtonClicked" (click)="exportUser()">Import Users</button> -->
-        </div>
-    </div>
-</ng-template>
 
 <ng-template #create_user let-modal>
     <app-add-users (onModalClose)="closeModal()" [userId]="edituserId" [companyId]="companyId"></app-add-users>

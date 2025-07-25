@@ -30,6 +30,7 @@ export class LayoutHeaderComponent implements OnInit {
 
   @Output() messageEvent = new EventEmitter<string>();
   @Output() downloadEvent = new EventEmitter<any>();
+  @Input() maxReceipt: number;
   downloadStatus = false;
   selectedLanguage: any = "English";
   constructor

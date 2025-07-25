@@ -145,7 +145,7 @@ export class UserComponent {
     English: true, 
   };
 
-  gujUserArray: any = [];
+  // gujUserArray: any = [];
   selectedLanguage = 'English';
   maxReceipt = 0;
   currentYear = new Date().getFullYear(); // 2027
@@ -212,7 +212,7 @@ export class UserComponent {
     let baseConfig;
     baseConfig = this.userHeader.reduce((config, column) => {
       config[column] = column === 'MemberName' ? true : false;
-      // config[column] = column === 'Mobile' ? true : false;    // -----------temp activated for testing
+      config[column] = column === 'Mobile' ? true : false;    // -----------temp activated for testing
       return config;
     }, {});
 
@@ -346,26 +346,6 @@ export class UserComponent {
     console.log('activeYear: ', this.activeYearColumns);
   }
 
-  fetchGujSheetData(sheetname) {
-    this.sheetsService.getSheetData(sheetname).subscribe({
-      next: (res: any) => {
-        if (res) {
-          // this.userHeader = res.values[0] || [];
-          this.gujUserArray = res.values.slice(1) || [];
-          // this.sheetsService.userData = res.values;
-          // console.log('Fetched Data:', res);
-          // this.userArray = res.values || [];
-          this.TotalCount = res.values.lenght;
-        }
-      },
-      error: (error) => {
-        this.toastr.error('Error fetching sheet data:', error);
-        this.openVerticallyCentered(this.sessionTemplate);
-        // alert('user logout');
-      }
-    });
-  }
-
   hasPermission(modules,accestype): boolean {
     return this.permissionService.hasPermission(modules,accestype);
   }
@@ -393,64 +373,7 @@ export class UserComponent {
     }
     return cell;
   }
-  // onTableDataChange(event: any) {
-  //   this.currentPage = event;
-  //   this.isLoading = true;
-  //   this.filterUsers();
-  // }
-
-  // onTableSizeChange(event: any): void {
-  //   this.isLoading = true;
-  //   this.itemsPerPage = event.target.value;
-  //   this.currentPage = 1;
-  //   this.filterUsers();
-
-  // }
-
-  // getUsers(page?: number, limit?: number): void {
-    
-  //   this.userService.getUsers(page, limit).subscribe({
-  //     next: (res: any) => {
-  //       if (res.success === 1) {
-  //         this.userArray = res.data.users || [];
-  //         this.TotalCount = res.data.totalCount;
-  //       }
-  //     },
-  //     error: (error) => {
-  //       this.toastr.error(error.error.message);
-  //     }
-  //   });
-  // }
-
-  // getLocations(): void {
-  //   this.userService.getLocations().subscribe({
-  //     next: (res: any) => {
-  //       if (res.success === 1) {
-  //         this.locations = (res.data || []).filter(x => x != null);
-  //       } else {
-  //         this.toastr.error(res.error.message);
-  //       }
-  //     },
-  //     error: (error) => {
-  //       this.toastr.error(error.error.message);
-  //     }
-  //   });
-  // }
-
-  // getCompanyList(): void {
-  //   this.companyService.getCompanyList().subscribe({
-  //     next: (res: any) => {
-  //       if (res.success === 1) {
-  //         this.companyNamesObj = res.data || [];
-  //       } else {
-  //         this.toastr.error(res.error.message);
-  //       }
-  //     },
-  //     error: (error) => {
-  //       this.toastr.error(error.error.error);
-  //     }
-  //   });
-  // }
+  
   edituser(userdata: any, template: TemplateRef<any>) {
     this.edituserId = userdata[0];
     // this.companyId = userdata.company_id;
@@ -478,9 +401,6 @@ export class UserComponent {
     this.receiptEditData.user[this.receiptEditData.colId] = this.receiptEditData.cellValue == null ? '' : this.receiptEditData.cellValue;
     console.log('receiptEditData: ', this.receiptEditData);
     // this.userArray[this.receiptEditData.rowId-1][this.receiptEditData.colId] = this.receiptEditData.user[this.receiptEditData.colId];
-    // console.log(this.userArray[this.receiptEditData.rowId-1][this.receiptEditData.colId]);
-    // console.log('this.userArray:', this.userArray);
-    // console.log('updated user is: ', this.receiptEditData.user);
     // update sheet data
     let rawAddress = parseInt(this.receiptEditData.user[0]) + 1;
     await this.updateSheetData('A'+rawAddress, this.receiptEditData.user);
@@ -494,7 +414,6 @@ export class UserComponent {
     // this.getMaxReceipt();
     this.isLoading = false;
     this.modelRef.dismiss();
-
   }
 
 
@@ -516,14 +435,10 @@ export class UserComponent {
     this.selectedFile = null;
     // this.getLocations();
     console.log(this.activeSearch, this.searchValues);
-    this.filterUsers();
     this.checkAuthStatus();
 
   }
-  ontryagain(){
-    this.imageUploadstatus = false;
-    this.selectedFile = null;
-  }
+
   openVerticallyCentered(content: TemplateRef<any>) {
     this.modelRef = this.modalService.open(content, { centered: true })
   }
@@ -545,156 +460,7 @@ export class UserComponent {
   deleteUser(userId: string): void {
     console.log('delete user: ', userId);
     this.isDeleteButtonClicked = true;
-    // this.userService.deleteUser(userId).subscribe({
-    //   next: (response: any) => {
-    //     if (response.success === 1) {
-    //       this.toastr.success(response.message, 'Success');
-    //       setTimeout(() => {
-    //         this.isLoading = false;
-    //       }, 1000);
-    //       this.filterUsers();
-    //       this.modelRef.dismiss();
-    //     } else {
-    //       this.toastr.error(response.error.message);
-    //     }
-    //     this.isDeleteButtonClicked = false;
-    //   },
-    //   error: (error) => {
-    //     this.isDeleteButtonClicked = false;
-    //     this.toastr.error(error.error.error);
-    //   }
-    // });
   }
-
-
-
-  filterUsers() {
-    this.Objectfilter['page'] = this.currentPage;
-    this.Objectfilter['limit'] = this.itemsPerPage;
-    // this.Objectfilter['search'] = this.search;
-    // this.userService.filterUsers(this.Objectfilter).subscribe({
-    //   next: (res: any) => {
-    //     if (res.success === 1) {
-    //       setTimeout(() => {
-    //         this.isLoading = false;
-    //       }, 1000);
-    //       this.userArray = res.data.users || [];
-    //       this.TotalCount = res.data.totalCount;
-    //       this.totalpages = res.data.totalpages;
-    //     } else {
-    //       this.toastr.error(res.message);
-    //       this.isLoading = false;
-    //     }
-    //   },
-    //   error: (error) => {
-    //     this.toastr.error(error.error.error);
-    //     this.isLoading = false;
-    //   }
-    // });
-  }
-
-  // filterUserBySearch() {
-  //   this.currentPage =1;
-  //   this.filterUsers();
-  // }
-
-  // onLocationChange(location: string) {
-  //   this.Objectfilter['location'] = location;
-  //   this.Objectfilter['page'] =1;
-  //   this.currentPage =1
-  //   this.filterUsers();
-  // }
-
-  // onCompanyChange(comObj: any) {
-  //   this.Objectfilter['company_id'] = comObj ? comObj._id:null;
-  //   this.Objectfilter['page'] =1;
-  //   this.currentPage =1
-  //   this.filterUsers();
-  // };
-
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
-    if (this.selectedFile) {
-      const validFileTypes = ['text/csv', 'application/vnd.ms-excel']; // Mime types for CSV files
-
-      if (!validFileTypes.includes(this.selectedFile.type)) {
-        this.toastr.error('Only CSV files are allowed.' );
-        event.target.value = ''; // Reset the file input
-        this.activeuploadbutton = false;
-        this.fileName = '';
-        return;
-      }
-      this.activeuploadbutton = true;
-      this.imageUploadstatus = true;
-      this.fileName = this.selectedFile.name;
-    }
-  };
-
-  // async exportUser() {
-  //   if (!this.selectedFile) {
-  //     console.error('No file selected.');
-  //     this.toastr.error('Please select a CSV file.');
-  //     return;
-  //   }
-
-  //   this.isImportButtonClicked = true;
-
-  //   this.userService.importUsers(this.selectedFile).subscribe({
-  //     next: (res: any) => {
-  //       if (res.success === 1) {
-  //         this.toastr.success(res.message, 'Success');
-  //         this.getUsers(this.currentPage, this.itemsPerPage);
-  //         this.closeModal();
-  //         this.isImportButtonClicked = false;
-  //       } else {
-  //         this.toastr.error(res.error.message);
-  //         this.isImportButtonClicked = false;
-  //       }
-  //     },
-  //     error: (error) => {
-  //       this.toastr.error(error.error.error);
-  //       this.isImportButtonClicked = false;
-  //     }
-  //   });
-  // }
-
-  // onstatuschange(status: string) {
-  //   this.Objectfilter['status'] = status ? status["key"] : null;
-  //   this.Objectfilter['page'] =1;
-  //   this.currentPage =1
-  //   this.filterUsers();
-  // }
-  // onsort(){
-  //   this.sortDirection = this.sortDirection === 'asc' ? 'asc' :'desc';
-  //   this.Objectfilter['sort'] =this.sortDirection;
-  //   this.sortDirection = this.sortDirection === 'asc' ? 'desc' :'asc';
-  //   this.userArray.reverse();
-  //   // this.filterUsers();
-  // }
-
-  // calculateIndex(indexOnPage: number): number {
-  //   return (this.currentPage - 1) * this.itemsPerPage + indexOnPage + 1;
-  // }
-  // downloadFile() {
-  //   const url = '../../../assets/empfffcsv.csv'; // Replace with your server endpoint for downloading the file
-  //   this.http.get(url, { responseType: 'blob' }).subscribe((data: any) => {
-  //     const blob = new Blob([data], { type: 'application/octet-stream' });
-  //     const link = document.createElement('a');
-  //     link.href = window.URL.createObjectURL(blob);
-  //     link.download = 'demo.csv'; // Change the file name as needed
-  //     link.click();
-  //   });
-  // }
-  // clearFilters() {
-  //   this.search = '';
-  //   this.selectedCompany = null;
-  //   this.selectedLocation = null;
-  //   this.selectedStatus = null;
-  //   this.Objectfilter = {};
-  //   this.currentPage = 1;
-  //   this.itemsPerPage = 10;
-  //   this.getUsers(this.currentPage, this.itemsPerPage);
-  // }
 
   public async logout(): Promise<void> {
     this.gAuthService.logout();
@@ -798,26 +564,6 @@ export class UserComponent {
     return lowerA.localeCompare(lowerB) * direction;
   }
 
-  // filterUserBySearch() {
-  //   const query = this.search.toLowerCase();
-  //   this.activeSearch = 'combine';
-
-  //   // Reset the table if the search value is empty
-  //   if (!query) {
-  //     this.resetSearch();
-  //     return;
-  //   }
-
-  //   this.userArray = this.sheetsService.userData.slice(1).filter(user => 
-  //     user[1].toLowerCase().includes(query) ||
-  //     user[2].toLowerCase().includes(query) ||
-  //     user[3].toLowerCase().includes(query) ||
-  //     user[4].toLowerCase().includes(query) ||
-  //     user[5].toLowerCase().includes(query) ||
-  //     user[7].toLowerCase().includes(query)
-  //   );
-  // }
-
   onSearch(column: string, event: Event) {
     const value = (event.target as HTMLInputElement).value.trim().toLowerCase(); // Cast to HTMLInputElement
     // Disable other search boxes and wipe their values
@@ -872,132 +618,8 @@ export class UserComponent {
     this.activeSearch = null;
   }
 
-  generateData1(hdr, data) {
-    var result = [];
-    var printData = {};
-    for (var i = 0; i < data.length; i++) {
-      printData['#'] = (i + 1).toString();
-      if (this.selectedLanguage == 'English') printData['Member Name'] = data[i][1] + ' ' + data[i][2] + ' ' + data[i][3];
-      else 
-      console.log('Row ['+i+']: ',data[i][12] + ' ' + data[i][13] + ' ' + data[i][14]);
-      printData['Member Name'] = data[i][12] + ' ' + data[i][13] + ' ' + data[i][14];
-      printData['2022'] = data[i][this.nonYearColumnCount + 0] || 'N/A';
-      printData['2023'] = data[i][this.nonYearColumnCount + 1] || 'N/A';
-      printData['2024'] = data[i][this.nonYearColumnCount + 2] || 'N/A';
-      printData['2025'] = data[i][this.nonYearColumnCount + 3] || 'N/A';
-      printData['2026'] = data[i][this.nonYearColumnCount + 4] || 'N/A';
-      result.push(Object.assign({}, printData));
-    }
-
-    return result;
-  };
-  
-  createHeaders(keys) {
-    var result = [];
-
-    for (var i = 0; i < keys.length; i += 1) {
-      result.push({
-        id: keys[i],
-        name: keys[i],
-        prompt: keys[i],
-        width: 65,
-        // align: "center",
-        padding: 0
-      });
-    }
-    return result;
-  }
-  
-  // downloadAsPDF2() {
-  //   var hdr = [...[
-  //       "#",
-  //       "Member Name",
-  //     ]
-  //     , ...this.yearColumnHeader
-  //   ];
-  //   var headers = this.createHeaders(hdr);
-    
-  //   var doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
-  //   doc.setFontSize(28);
-  //   doc.addFont("../../../../assets/fonts/NotoSansGujarati.ttf","NotoSansGujarati","normal");
-  //   doc.setFont("NotoSansGujarati", "normal");
-  //   // if (this.selectedLanguage == 'English') {
-  //   //   doc.setFont("helvetica", "bold");
-  //   // } else {
-  //   // }
-
-  //   doc.text(this.userArray[1][12], 105, 15,  null, "center");
-  //   // doc.text("This is centred text.", 105, 80, null, null, "center");
-  //   doc.table(10, 20, this.generateData(this.userArray), headers, { autoSize: true, headerTextColor: 'red', headerBackgroundColor: 'yellow' });
-  //   doc.save('FilteredTable.pdf');
-  // }
-  
-  
-
-  // downloadAsPDF3() {
-  //   const hdr = ["#", "Member Name", ...this.yearColumnHeader];
-  //   const headers = this.createHeaders(hdr);
-  //   const rows = this.generateData( this.userArray);
-  
-  //   const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: "portrait" });
-  //   doc.setFontSize(28);
-  //   doc.addFont("../../../../assets/fonts/NotoSansGujarati.ttf", "NotoSansGujarati", "normal");
-  //   doc.setFont("NotoSansGujarati", "normal");
-  
-  //   // Title
-  //   doc.text("ભીખુભાઈ કૈલાશચંદ્ર ગુપ્તા", 105, 15, null, "center");
-  
-  //   // Add table
-  //   // doc.autoTable({
-  //   //   head: [headers],
-  //   //   body: rows,
-  //   //   styles: { font: "NotoSansGujarati", fontStyle: "normal" },
-  //   // });
-  
-  //   doc.save('FilteredTable.pdf');
-  // }
-
-
-
-  // public downloadAsPDF1(): void {
-  //   const doc = new jsPDF({
-  //     orientation: 'landscape',
-  //     putOnlyUsedFonts: true,
-  //     // unit: 'px',
-  //     // format: 'a4',
-  //   });
-  
-  //   const pdfTable = this.pdfTable.nativeElement;
-  
-  //   // Clone table and make it visible
-  //   const clonedTable = pdfTable.cloneNode(true) as HTMLElement;
-  //   clonedTable.style.overflow = 'visible';
-  //   clonedTable.style.maxHeight = 'none';
-  //   clonedTable.style.display = 'block'; // Ensure visibility
-  //   document.body.appendChild(clonedTable);
-  
-  //   doc.html(clonedTable, {
-  //     callback: (doc) => {
-  //       doc.save('FilteredTable.pdf');
-  //       document.body.removeChild(clonedTable); // Clean up
-  //     },
-  //     x: 15,
-  //     y: 15,
-  //     html2canvas: {
-  //       scale: 0.25, // High resolution
-  //       useCORS: true, // Handle cross-origin resources
-  //     },
-  //   });
-  // }
-
-
   generateData(data) {
     let tableData = data.map((row, index) => {
-      console.log('row data: ----0',row[this.nonYearColumnCount + 0])
-      console.log('row data: ----1',row[this.nonYearColumnCount + 1])
-      console.log('row data: ----2',row[this.nonYearColumnCount + 2])
-      console.log('row data: ----3',row[this.nonYearColumnCount + 3])
-      console.log('row data: ----4',row[this.nonYearColumnCount + 4])
       let memberData = '';
       if (this.selectedLanguage == 'English') memberData = `${row[1]} ${row[2]} ${row[3]}`;
       else memberData = `${row[12]} ${row[13]} ${row[14]}`;
@@ -1015,17 +637,6 @@ export class UserComponent {
   }
   
   downloadAsPDF() {
-    // ref: https://www.npmjs.com/package/pdfmake
-  //   var hdr1 = [...[
-  //     "#",
-  //     "Member Name",
-  //   ]
-  //   , ...this.yearColumnHeader
-  // ];
-  // var headers = this.createHeaders(hdr1);
-
-
-
     // Table headers
     const hdr = [
       {text: '#', style: 'tableHeader'}, 
@@ -1306,11 +917,6 @@ public async downloadTranscriptFast() {
         window.open(fullUrl);
         return fullUrl;
       }
-    
-
-    
-    
-
   }
 
   // public downloadTranscript2() {
