@@ -38,6 +38,7 @@ pdfMake.fonts = {
 })
 export class UserComponent {
   @ViewChild('session_expired', { static: true }) sessionTemplate!: TemplateRef<any>;
+  @ViewChild('custom_msg', { static: true }) custom_msg!: TemplateRef<any>;
   @ViewChild('pdfTable', {static: false}) pdfTable: ElementRef;
   isDeleteButtonClicked = false;
   isImportButtonClicked = false;
@@ -151,6 +152,14 @@ export class UserComponent {
   currentYear = new Date().getFullYear(); // 2027
   showNumberOfYears = 3;
   activeYearColumns = [];
+
+  selectMessageType: any = undefined;
+  customMessage: any;
+  messageTypes = [
+    { name: 'Pending Fees', fnName: 'pendingFees' },
+    { name: 'Birthday Wish', fnName: 'birthdayWish' },
+    { name: 'Other', fnName: 'other' },
+  ];
 
 
   constructor
@@ -862,7 +871,18 @@ public async downloadTranscriptFast() {
 
 
 
-  generateWhatsappLinks(rowId: any): any {
+  generateWhatsappLinks(rowId: any): any { 
+    if (this.selectMessageType == 'pendingFees') {
+      this.pendingFees(rowId);
+    } else if (this.selectMessageType == 'birthdayWish') {
+      this.birthdayWishes(rowId);
+    } else if (this.selectMessageType == 'other') {
+      this.otherTextMessage(rowId);
+    } else {
+      this.toastr.error('Please select proper message type from dropdown!', 'Missing');
+    }
+  }
+  pendingFees(rowId: any): any {
     console.log('generateWhatsappLinks called with entry:', rowId, this.userArray[rowId]);
     let rowData = [this.userArray[rowId][12] + " " + this.userArray[rowId][13] + " " + this.userArray[rowId][14], this.userArray[rowId][4], ...this.userArray[rowId].slice(this.nonYearColumnCount)];
     // let rowData = [this.userArray[rowId][12] + " " + this.userArray[rowId][13] + " " + this.userArray[rowId][14], this.userArray[rowId][4], this.userArray[rowId][15],this.userArray[rowId][16],this.userArray[rowId][17],this.userArray[rowId][18]];
@@ -907,17 +927,56 @@ public async downloadTranscriptFast() {
         અજય આર. ગુપ્તા
         આણંદ માથુર વૈશ્ય શાખા સભા, આણંદ`;
 
-        const encodedMessage = encodeURIComponent(message);
-        const fullUrl = `https://wa.me/91${mobile}?text=${encodedMessage}`;
+        // const encodedMessage = encodeURIComponent(message);
+        // const fullUrl = `https://wa.me/91${mobile}?text=${encodedMessage}`;
+        this.prepareWhatsappLinks(message, mobile);
         // const shortUrl = await this.shortenUrl(fullUrl);
 
         // results.push({ username, url: fullUrl });
       // }
-        console.log('fullURL:', message, fullUrl);
-        window.open(fullUrl);
-        return fullUrl;
-      }
+      // window.open(fullUrl);
+      // return fullUrl;
+    }
   }
+  
+  birthdayWishes(rowId: any) {
+    console.log('biithday wishe called from :', rowId);
+  }
+  
+  otherTextMessage(rowId: any) {
+    const mobile = this.userArray[rowId][4];
+    const username = this.selectedLanguage == 'Gujarati' ? this.userArray[rowId][12]+" "+this.userArray[rowId][13]+" "+this.userArray[rowId][14] : this.userArray[rowId][1]+" "+this.userArray[rowId][2]+" "+this.userArray[rowId][3];
+    const mentionedMessage = this.customMessage.split('@user').join(username);
+    console.log('otherTextMessage called from :', rowId, mobile);
+    this.prepareWhatsappLinks(mentionedMessage, mobile);
+    console.log('fullURL:', mentionedMessage);  
+    // return fullUrl
+  }
+
+  onMessageTypeChange() {
+    if (this.selectMessageType == 'other') {
+      this.openVerticallyCentered(this.custom_msg);
+    }
+  }
+  
+  saveMessageContent() {
+    if (!this.customMessage) this.selectMessageType = undefined;
+    console.log(this.customMessage, this.selectMessageType);
+    this.modelRef.dismiss();
+  }
+
+  clearMessage() {
+    this.customMessage = '';
+  }
+
+  prepareWhatsappLinks(msg: string, mobile: any) {
+    const encodedMessage = encodeURIComponent(msg);
+    const msgUrl = `https://wa.me/91${mobile}?text=${encodedMessage}`;
+    console.log('fullURL:', encodedMessage, msgUrl);
+    window.open(msgUrl);
+    // return msgUrl;
+  }
+  
 
   // public downloadTranscript2() {
   //   const table = document.getElementById('transcript_inner') as HTMLElement;

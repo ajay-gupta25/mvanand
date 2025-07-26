@@ -22,10 +22,10 @@
         <li *ngIf="!this.gAuthService.identityClaims">
             <button type="button" class="btn btn-primary" (click)="login()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="add"></i>Login User</button>
         </li>
-        <li *ngIf="this.gAuthService.identityClaims" title="Last added receipt">
+        <li *ngIf="this.gAuthService.identityClaims && maxReceipt" title="Last added receipt">
               <span class="iconsax page_header_right btn_group">{{maxReceipt}}</span> &nbsp; <i class="iconsax" icon-name="receipt-text"></i>
         </li>
-        <li *ngIf="this.gAuthService.identityClaims">
+        <li *ngIf="this.gAuthService.identityClaims && maxReceipt">
             <button type="button" class="btn-secondary" [disabled]="downloadStatus" (click)="downloadPdf()" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="document-download"></i></button>
         </li>
 

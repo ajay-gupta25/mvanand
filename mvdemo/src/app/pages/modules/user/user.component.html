@@ -119,6 +119,7 @@
                   
                 
                 <div class="page_header_right btn_group">
+                    <ng-select *ngIf="columnControl[userHeader[4]]" placeholder="Select Message" [(ngModel)]="selectMessageType"  [items]="messageTypes" bindLabel="name" bindValue="fnName" (change)="onMessageTypeChange()"></ng-select>
                     <!-- <button type="button" class="btn btn-secondary" (click)="openVerticallyCentered(import_popup)" 
                         data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="iconsax" icon-name="download-1"></i>Import</button> -->
                     <!-- <button type="button" class="btn btn-secondary" (click)="downloadAsPDF()" 
@@ -316,6 +317,34 @@
         <div class="modal-footer btn_group justify-content-start">
             <button (click)="modal.dismiss('Cross click')" type="button" class="btn btn-secondary">No, Go Back</button>
             <button type="submit" class="btn btn-primary" (click)="logout()" [disabled]="isDeleteButtonClicked">Logout?</button>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Custom message -->
+<ng-template #custom_msg let-modal>
+    <div class="modal_box modal_sm">
+        <div class="modal-header">
+            <h4 class="modal-title">Enter custom message</h4>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click');saveMessageContent()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="delete_modal_msg">
+                <textarea 
+                class="form-control textarea" 
+                placeholder="Enter your message here" 
+                id="customMessage"
+                [(ngModel)]="customMessage"
+                rows="5"></textarea>
+            </div>
+            <br>
+            <span><b>Hint:</b> Add <kbd>@user</kbd> if you want to add member's fullname in message!</span>
+        </div>
+        <div class="modal-footer btn_group justify-content-start">
+            <button (click)="clearMessage()" type="button" class="btn btn-secondary">Delete</button>
+            <button type="submit" class="btn btn-primary" (click)="saveMessageContent()">Submit</button>
         </div>
     </div>
 </ng-template>
