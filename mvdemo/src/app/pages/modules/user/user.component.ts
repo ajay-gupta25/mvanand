@@ -152,6 +152,9 @@ export class UserComponent {
   currentYear = new Date().getFullYear(); // 2027
   showNumberOfYears = 3;
   activeYearColumns = [];
+  pendingCounts: { [column: string]: number } = {};
+  showPendingCount = false;
+  private blinkInterval: any;
 
   selectMessageType: any = undefined;
   customMessage: any;
@@ -263,9 +266,45 @@ export class UserComponent {
       this.fetchSheetData('sheet1');
       // this.fetchGujSheetData('sheet2');
       this.isAdmin();
+      // Start the blink interval
+      this.startBlinkCycle();
     } else {
       console.log('user --not---- logged in');
       }
+  }
+
+  ngOnDestroy() {
+    // Clean up interval
+    if (this.blinkInterval) {
+      clearInterval(this.blinkInterval);
+    }
+  }
+
+  startBlinkCycle() {
+    // Clear any existing interval
+    if (this.blinkInterval) {
+      clearInterval(this.blinkInterval);
+    }
+
+    // Initial show immediately (optional)
+    this.showPendingCount = true;
+    
+    // Set up the cycle:
+    // 1. Hide after 3 seconds
+    setTimeout(() => {
+      this.showPendingCount = false;
+      
+      // 2. Then repeat every 10 seconds
+      this.blinkInterval = setInterval(() => {
+        // Show for 3 seconds
+        this.showPendingCount = true;
+        
+        setTimeout(() => {
+          this.showPendingCount = false;
+        }, 5000);
+        
+      }, 11000); // Full cycle duration
+    }, 5000); // Initial visible duration
   }
 
   // enableSearch() {
@@ -333,6 +372,7 @@ export class UserComponent {
           //   return ud;
           // });
           this.maxReceipt = this.getMaxReceipt();
+          this.getPendingCount();
         }
       },
       error: (error) => {
@@ -516,6 +556,18 @@ export class UserComponent {
     this.searchableColumns[row] = !setToggleValue;
     this.manageSearch();
     // this.preserveState();
+  }
+
+  getPendingCount() {
+    this.userArray.forEach((user, i) => {
+      this.activeYearColumns.forEach((y) => {
+          if (user[y.index] === '0') {
+            if (!this.pendingCounts[y.header] || Number.isNaN(this.pendingCounts[y.header])) this.pendingCounts[y.header] = 1;
+            else this.pendingCounts[y.header]++;
+          }
+      })
+    })
+    console.log(this.pendingCounts);
   }
 
   sortTable(column: string) {

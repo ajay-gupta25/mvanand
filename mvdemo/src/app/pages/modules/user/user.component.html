@@ -157,7 +157,8 @@
                                     <ng-container *ngFor="let header of userHeader.slice(1); let i=index">
                                         <th *ngIf="columnControl[header]" (click)="sortTable(header)">
                                             <!-- <label *ngIf="i==0">{{ header }}</label> -->
-                                            <label>{{ header }} <span *ngIf="sortableColumns[header]">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></label>
+                                            <label>{{ header }} <span style="font-size:16px;" *ngIf="sortableColumns[header] && (!showPendingCount || !pendingCounts[header])">{{ sortDirection === 'asc' ? '↑' : '↓' }} </span><span *ngIf="!sortableColumns[header] || (showPendingCount && pendingCounts[header])" class="blinking-count">{{pendingCounts[header] ? pendingCounts[header] : ''}}</span></label>
+                                            <!-- <label>{{ header }} <span *ngIf="sortableColumns[header]"> <span class="blinking-count">{{showPendingCount && pendingCounts[header] ? (pendingCounts[header] ? pendingCounts[header] : '') : ( sortDirection === 'asc' ? '↑' : '↓') }}</span></span></label> -->
                                         </th>
                                     </ng-container>
                                     <th *ngIf="isAdmin()">Action</th>

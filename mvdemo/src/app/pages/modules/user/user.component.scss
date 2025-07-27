@@ -170,3 +170,19 @@
 // .toggle-switch .toggle-thumb.right {
 //   left: 20.5px;
 // }
+
+
+.blinking-count {
+  // animation: blink 2s ease-in-out;
+  display: inline-block;
+  padding: 0 3px;
+  font-size: 8px;
+  color: palevioletred;
+  vertical-align: text-top;
+  font-weight: bolder;
+}
+
+// @keyframes blink {
+//   0%, 100% { opacity: 1; }
+//   50% { opacity: 0.5; }
+// }
