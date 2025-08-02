@@ -224,7 +224,7 @@ export class UserComponent {
     let baseConfig;
     baseConfig = this.userHeader.reduce((config, column) => {
       config[column] = column === 'MemberName' ? true : false;
-      config[column] = column === 'Mobile' ? true : false;    // -----------temp activated for testing
+      // config[column] = column === 'Mobile' ? true : false;    // -----------temp activated for testing
       return config;
     }, {});
 
@@ -684,30 +684,41 @@ export class UserComponent {
       let memberData = '';
       if (this.selectedLanguage == 'English') memberData = `${row[1]} ${row[2]} ${row[3]}`;
       else memberData = `${row[12]} ${row[13]} ${row[14]}`;
-      return [
+      let tdata = [
         {text: (index + 1).toString(), style: 'tableData'}, // #
         {text: memberData, style: 'tableData'}, // Member Name
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 0], this.nonYearColumnCount), style: 'tableData'}, // 2022
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 1], this.nonYearColumnCount), style: 'tableData'}, // 2023
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 2], this.nonYearColumnCount), style: 'tableData'}, // 2024
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 3], this.nonYearColumnCount), style: 'tableData'}, // 2025
-        {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 4], this.nonYearColumnCount), style: 'tableData'}, // 2026
+        // {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 0], this.nonYearColumnCount), style: 'tableData'}, // 2022
+        // {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 1], this.nonYearColumnCount), style: 'tableData'}, // 2023
+        // {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 2], this.nonYearColumnCount), style: 'tableData'}, // 2024
+        // {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 3], this.nonYearColumnCount), style: 'tableData'}, // 2025
+        // {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 4], this.nonYearColumnCount), style: 'tableData'}, // 2026
       ];
+
+      this.activeYearColumns.forEach((h) => {
+        tdata.push({text: this.conditionallyShowCellData(row[h.index + 1], this.nonYearColumnCount), style: 'tableData'})
+      });
+
+      return tdata
     });
     return tableData;
   }
   
   downloadAsPDF() {
     // Table headers
-    const hdr = [
+    let hdr = [
       {text: '#', style: 'tableHeader'}, 
       {text: this.selectedLanguage == 'English' ? 'Member Name' :'સદસ્યોના નામ', style: 'tableHeader'}, 
-      {text: '2022', style: 'tableHeader'}, 
-      {text: '2023', style: 'tableHeader'}, 
-      {text: '2024', style: 'tableHeader'}, 
-      {text: '2025', style: 'tableHeader'}, 
-      {text: '2026', style: 'tableHeader'}
+      // {text: '2022 (' + this.pendingCounts['2022'] + ')', style: 'tableHeader'}, 
+      // {text: '2022', style: 'tableHeader'}, 
+      // {text: '2023', style: 'tableHeader'}, 
+      // {text: '2024', style: 'tableHeader'}, 
+      // {text: '2025', style: 'tableHeader'}, 
+      // {text: '2026', style: 'tableHeader'},
     ];
+
+    this.activeYearColumns.forEach((h) => {
+      hdr.push({text: h?.header, style: 'tableHeader'})
+    });
   
     // Generate data for the table
     const tableBody = [hdr, ...this.generateData(this.userArray)];
