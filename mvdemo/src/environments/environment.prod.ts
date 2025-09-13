@@ -24,7 +24,7 @@ const categoriesUrl:string = `${scheme}${host}`;
 export const environment = {
   production: false,
   version: packageInfo.version,
-  appName: 'QEvalAI',
+  appName: 'MvAnand',
   envName: EnvName.LOCAL,
   defaultLanguage: 'en',
   apiBaseUrl:authUrl,

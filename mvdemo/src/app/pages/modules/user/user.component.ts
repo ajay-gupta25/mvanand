@@ -695,7 +695,7 @@ export class UserComponent {
       ];
 
       this.activeYearColumns.forEach((h) => {
-        tdata.push({text: this.conditionallyShowCellData(row[h.index + 1], this.nonYearColumnCount), style: 'tableData'})
+        tdata.push({text: this.conditionallyShowCellData(row[h.index], this.nonYearColumnCount), style: 'tableData'})
       });
 
       return tdata
@@ -708,12 +708,6 @@ export class UserComponent {
     let hdr = [
       {text: '#', style: 'tableHeader'}, 
       {text: this.selectedLanguage == 'English' ? 'Member Name' :'સદસ્યોના નામ', style: 'tableHeader'}, 
-      // {text: '2022 (' + this.pendingCounts['2022'] + ')', style: 'tableHeader'}, 
-      // {text: '2022', style: 'tableHeader'}, 
-      // {text: '2023', style: 'tableHeader'}, 
-      // {text: '2024', style: 'tableHeader'}, 
-      // {text: '2025', style: 'tableHeader'}, 
-      // {text: '2026', style: 'tableHeader'},
     ];
 
     this.activeYearColumns.forEach((h) => {
@@ -723,17 +717,31 @@ export class UserComponent {
     // Generate data for the table
     const tableBody = [hdr, ...this.generateData(this.userArray)];
   
+    // Get current date in formatted string
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    
+    const formattedDateTime = currentDate.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
     // Document definition for pdfMake
     const docDefinition = {
       content: [
         {
           stack: [
           this.selectedLanguage == 'English' ? 'Mathur Vyshy Shakha Sabha, Anand' :'માથુર વૈશ્ય શાખા સભા, આણંદ',
-          // {text: 'This is a subheader', style: 'subheader'},
           ],
           style: 'header'
         },
-        // { text: this.selectedLanguage == 'English' ? 'Mathur Vyshy Anand Shakha Sabha' :'માથુર વૈશ્ય આણંદ શાખા સભા', fontSize: 16, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
         { text: this.selectedLanguage == 'English' ? 'Last Added: '+this.maxReceipt  : 'પાછલી રસીદ નં: '+this.maxReceipt, fontSize: 10, bold: false, alignment: 'right', margin: [0, 10, 0, 10] },
         {
           table: {
@@ -741,9 +749,44 @@ export class UserComponent {
             body: tableBody,
           },
           style: 'tableExample',
-          layout: 'lightHorizontalLines', // Optional table styling
+          layout: 'lightHorizontalLines',
         },
       ],
+      
+      // ADD FOOTER WITH DATE
+      footer: function(currentPage, pageCount) {
+        return [
+          {
+            columns: [
+              {
+                text: `Report Date: ${formattedDateTime}`,
+                alignment: 'left',
+                fontSize: 8,
+                margin: [20, 0, 0, 10]
+              },
+              {
+                text: `Page ${currentPage} of ${pageCount}`,
+                alignment: 'right',
+                fontSize: 8,
+                margin: [0, 0, 20, 10]
+              }
+            ]
+          }
+        ];
+      },
+      
+      // OR ADD HEADER WITH DATE (choose one)
+      /*
+      header: function(currentPage, pageCount) {
+        return {
+          text: `Report Date: ${formattedDate}`,
+          alignment: 'right',
+          fontSize: 10,
+          margin: [0, 10, 20, 0]
+        };
+      },
+      */
+
       styles: {
         header: {
           fontSize: 18,
@@ -753,7 +796,6 @@ export class UserComponent {
         },
         tableExample: {
           margin: [20, 5, 0, 10],
-          // alignment: 'center',
         },
         tableHeader: {
           bold: true,
@@ -763,19 +805,16 @@ export class UserComponent {
         },
         tableData: {
           bold: true,
-          // fontSize: 12,
           color: 'black',
           margin: [3, 3, 3, 3]
         }
       },
       defaultStyle: {
-        font: this.selectedLanguage == 'English'? 'helvetica' : 'NotoSansGujarati', // Set default font to Gujarati
+        font: this.selectedLanguage == 'English'? 'helvetica' : 'NotoSansGujarati',
       },
     };
   
-    // const fileName = `${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}-${new Date().getHours().toString().padStart(2,'0')}-${new Date().getMinutes().toString().padStart(2,'0')}`;
     const fileName = `MvAnand_${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}`;
-    // Generate and download the PDF
     pdfMake.createPdf(docDefinition).download(fileName+'.pdf');
   }
 
@@ -942,7 +981,8 @@ public async downloadTranscriptFast() {
     } else if (this.selectMessageType == 'other') {
       this.otherTextMessage(rowId);
     } else {
-      this.toastr.error('Please select proper message type from dropdown!', 'Missing');
+      // this.toastr.error('Please select proper message type from dropdown!', 'Missing');
+      //instead provide/ask option for call/text or copy number
     }
   }
   pendingFees(rowId: any): any {
