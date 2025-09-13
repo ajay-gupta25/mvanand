@@ -1,4 +1,4 @@
-import { HttpClient, HTTP_INTERCEPTORS,HttpClientModule }from '@angular/common/http';
+import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi }from '@angular/common/http';
 import { APP_INITIALIZER,NgModule,Injector }from '@angular/core';
 import { BrowserModule }        from '@angular/platform-browser';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -36,84 +36,65 @@ import { ViewUsersComponent } from './pages/modules/user/view-users/view-users.c
 
 
 
-@NgModule({
-  imports: [
-    // Angular modules
-    HttpClientModule,
-    BrowserAnimationsModule,
-    NgbTooltipModule,
-    TagInputModule,
-    OAuthModule.forRoot(),
-    ToastrModule.forRoot({
-      timeOut: 3000,
-      positionClass: 'toast-top-right',
-      preventDuplicates: true,
-    }),
-    BrowserModule,
-    NgxPaginationModule,
-    NgbModule,
-
-    // External modules
-    TranslateModule.forRoot({
-      loader :
-      {
-        provide    : TranslateLoader,
-        useFactory : (createTranslateLoader),
-        deps       : [HttpClient]
-      }
-    }),
-    AngularSvgIconModule.forRoot(),
-
-    // Internal modules
-    SharedModule,
-    StaticModule,
-    AppRoutingModule,
-
-
-
-    CommonModule,
-    // UserRoutingModule,
-    SharedModule,
-    NgxPaginationModule,
-    ReactiveFormsModule,
-    NgSelectModule,
-    SharedModule,
-    NgxPaginationModule,
-  ],
-  declarations: [
-    AppComponent,
-    UserComponent,
-    AddUsersComponent,
-    ViewUsersComponent
-  ],
-  providers: [
-    // External modules
-    {provide: LocationStrategy, useClass: HashLocationStrategy},
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    },
-    {
-      provide    : APP_INITIALIZER,
-      useFactory : appInitFactory,
-      deps       : [ TranslateService, Injector ],
-      multi      : true
-    },
-
-    // Services
-    AppService,
-    StoreService,
-
-    // Pipes
-    DatePipe,
-
-    // Guards
-
-    // Interceptors
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        UserComponent,
+        AddUsersComponent,
+        ViewUsersComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserAnimationsModule,
+        NgbTooltipModule,
+        TagInputModule,
+        OAuthModule.forRoot(),
+        ToastrModule.forRoot({
+            timeOut: 3000,
+            positionClass: 'toast-top-right',
+            preventDuplicates: true,
+        }),
+        BrowserModule,
+        NgxPaginationModule,
+        NgbModule,
+        // External modules
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: (createTranslateLoader),
+                deps: [HttpClient]
+            }
+        }),
+        AngularSvgIconModule.forRoot(),
+        // Internal modules
+        SharedModule,
+        StaticModule,
+        AppRoutingModule,
+        CommonModule,
+        // UserRoutingModule,
+        SharedModule,
+        NgxPaginationModule,
+        ReactiveFormsModule,
+        NgSelectModule,
+        SharedModule,
+        NgxPaginationModule], providers: [
+        // External modules
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptor,
+            multi: true
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: appInitFactory,
+            deps: [TranslateService, Injector],
+            multi: true
+        },
+        // Services
+        AppService,
+        StoreService,
+        // Pipes
+        DatePipe,
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule { }
 
 export function createTranslateLoader(http : HttpClient)
