@@ -77,10 +77,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "SpeechtoText:build:production"
+              "buildTarget": "SpeechtoText:build:production"
             },
             "development": {
-              "browserTarget": "SpeechtoText:build:development"
+              "buildTarget": "SpeechtoText:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -88,7 +88,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "SpeechtoText:build"
+            "buildTarget": "SpeechtoText:build"
           }
         },
         "test": {
