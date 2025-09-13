@@ -1,5 +1,5 @@
 import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi }from '@angular/common/http';
-import { APP_INITIALIZER,NgModule,Injector }from '@angular/core';
+import { NgModule, Injector, inject, provideAppInitializer }from '@angular/core';
 import { BrowserModule }        from '@angular/platform-browser';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { CommonModule, DatePipe,HashLocationStrategy, LocationStrategy }from '@angular/common';
@@ -82,12 +82,10 @@ import { ViewUsersComponent } from './pages/modules/user/view-users/view-users.c
             useClass: AuthInterceptor,
             multi: true
         },
-        {
-            provide: APP_INITIALIZER,
-            useFactory: appInitFactory,
-            deps: [TranslateService, Injector],
-            multi: true
-        },
+        provideAppInitializer(() => {
+        const initializerFn = (appInitFactory)(inject(TranslateService), inject(Injector));
+        return initializerFn();
+      }),
         // Services
         AppService,
         StoreService,
