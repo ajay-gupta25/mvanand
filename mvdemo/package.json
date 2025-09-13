@@ -13,15 +13,15 @@
   "private": true,
   "dependencies": {
     "@angular-slider/ngx-slider": "^17.0.2",
-    "@angular/animations": "^18.2.14",
-    "@angular/common": "^18.2.14",
-    "@angular/compiler": "^18.2.14",
-    "@angular/core": "^18.2.14",
-    "@angular/forms": "^18.2.14",
-    "@angular/localize": "^18.2.14",
-    "@angular/platform-browser": "^18.2.14",
-    "@angular/platform-browser-dynamic": "^18.2.14",
-    "@angular/router": "^18.2.14",
+    "@angular/animations": "^19.2.15",
+    "@angular/common": "^19.2.15",
+    "@angular/compiler": "^19.2.15",
+    "@angular/core": "^19.2.15",
+    "@angular/forms": "^19.2.15",
+    "@angular/localize": "^19.2.15",
+    "@angular/platform-browser": "^19.2.15",
+    "@angular/platform-browser-dynamic": "^19.2.15",
+    "@angular/router": "^19.2.15",
     "@caliatys/array-typer": "^1.0.0",
     "@ng-bootstrap/ng-bootstrap": "^15.1.2",
     "@ng-select/ng-select": "^11.2.0",
@@ -44,12 +44,12 @@
     "rxjs": "~7.8.1",
     "sonar-scanner": "^3.1.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.14.10"
+    "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.21",
-    "@angular/cli": "^18.2.21",
-    "@angular/compiler-cli": "^18.2.14",
+    "@angular-devkit/build-angular": "^19.2.16",
+    "@angular/cli": "^19.2.16",
+    "@angular/compiler-cli": "^19.2.15",
     "@types/jasmine": "~3.10.0",
     "@types/jquery": "^3.5.29",
     "@types/node": "^12.11.1",
@@ -59,6 +59,6 @@
     "karma-coverage": "~2.1.0",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
-    "typescript": "~5.4.5"
+    "typescript": "~5.8.3"
   }
 }

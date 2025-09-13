@@ -24,9 +24,10 @@ export interface FormComponent
 }
 
 @Component({
-  selector    : 'app-modal-wrapper',
-  templateUrl : 'modal-wrapper.component.html',
-  styleUrls   : ['modal-wrapper.component.scss']
+    selector: 'app-modal-wrapper',
+    templateUrl: 'modal-wrapper.component.html',
+    styleUrls: ['modal-wrapper.component.scss'],
+    standalone: false
 })
 export class ModalWrapperComponent implements OnInit
 {

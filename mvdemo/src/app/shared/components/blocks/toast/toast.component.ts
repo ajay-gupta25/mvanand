@@ -5,9 +5,10 @@ import { Component }    from '@angular/core';
 import { ToastManager } from './toast.manager';
 
 @Component({
-  selector    : 'app-toast',
-  templateUrl : './toast.component.html',
-  styleUrls   : ['./toast.component.scss']
+    selector: 'app-toast',
+    templateUrl: './toast.component.html',
+    styleUrls: ['./toast.component.scss'],
+    standalone: false
 })
 export class ToastComponent
 {

@@ -2,9 +2,10 @@
 import { Component,OnInit,Input,Output,EventEmitter } from '@angular/core';
 
 @Component({
-  selector    : 'app-form-confirm',
-  templateUrl : './form-confirm.component.html',
-  styleUrls   : ['./form-confirm.component.scss']
+    selector: 'app-form-confirm',
+    templateUrl: './form-confirm.component.html',
+    styleUrls: ['./form-confirm.component.scss'],
+    standalone: false
 })
 export class FormConfirmComponent
 {

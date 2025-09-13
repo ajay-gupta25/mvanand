@@ -8,9 +8,10 @@ import { environment }  from '@env/environment';
 import { StoreService } from '@services/store.service';
 
 @Component({
-  selector    : 'app-auth',
-  templateUrl : './auth.component.html',
-  styleUrls   : ['./auth.component.scss']
+    selector: 'app-auth',
+    templateUrl: './auth.component.html',
+    styleUrls: ['./auth.component.scss'],
+    standalone: false
 })
 export class AuthComponent implements OnInit
 {

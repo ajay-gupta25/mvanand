@@ -11,9 +11,10 @@ import { StoreService } from '@services/store.service';
 import { GoogleAuthService } from '@services/auth/google-auth.service';
 
 @Component({
-  selector: 'app-layout-header',
-  templateUrl: './layout-header.component.html',
-  styleUrls: ['./layout-header.component.scss']
+    selector: 'app-layout-header',
+    templateUrl: './layout-header.component.html',
+    styleUrls: ['./layout-header.component.scss'],
+    standalone: false
 })
 export class LayoutHeaderComponent implements OnInit {
   @Input() profileImage: string;

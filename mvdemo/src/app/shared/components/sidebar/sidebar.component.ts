@@ -6,9 +6,10 @@ import { Router, NavigationEnd } from '@angular/router';
 import { environment } from '@env/environment';
 
 @Component({
-  selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+    selector: 'app-sidebar',
+    templateUrl: './sidebar.component.html',
+    styleUrls: ['./sidebar.component.scss'],
+    standalone: false
 })
 export class SidebarComponent {
   openSubMenus: string[] = []; // Array to store open submenus

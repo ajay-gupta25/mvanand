@@ -6,9 +6,10 @@ import { AuthService } from '@services/auth.service';
 import { AuthGuard } from 'src/app/shared/auth/auth.guard';
 
 @Component({
-  selector    : 'app-root',
-  templateUrl : './app.component.html',
-  styleUrls   : ['./app.component.scss']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    standalone: false
 })
 export class AppComponent
 {
