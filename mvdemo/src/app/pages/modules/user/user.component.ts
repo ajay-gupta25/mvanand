@@ -470,6 +470,9 @@ export class UserComponent {
     try {
         const response = await lastValueFrom(this.sheetsService.updateSheetData('Sheet1', rowAddress, [userData]));
         console.log('Sheet updated successfully:', response);
+        if (parseInt(this.receiptEditData.cellValue) > this.maxReceipt) {
+          this.maxReceipt = parseInt(this.receiptEditData.cellValue);
+        }
         this.toastr.success('User Updated successfully!', 'Success');
       } catch (error) {
         console.error('Error updating sheet data:', error);
