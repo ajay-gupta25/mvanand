@@ -29,10 +29,12 @@ export class LayoutHeaderComponent implements OnInit {
   isLoading: boolean = false;
 
   @Output() messageEvent = new EventEmitter<string>();
+  @Output() showSenior = new EventEmitter<boolean>();
   @Output() downloadEvent = new EventEmitter<any>();
   @Input() maxReceipt: number;
   downloadStatus = false;
   selectedLanguage: any = "English";
+  showSeniors: boolean = false;
   constructor
     (
       public translate: TranslateService,
@@ -50,6 +52,11 @@ export class LayoutHeaderComponent implements OnInit {
     setLanguage(language: string) {
       this.selectedLanguage = language;
       this.messageEvent.emit(this.selectedLanguage);
+    }
+
+    toggleShowSeniors() {
+      this.showSeniors = !this.showSeniors;
+      this.showSenior.emit(this.showSeniors);
     }
 
     downloadPdf() {

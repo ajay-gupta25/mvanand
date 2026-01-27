@@ -49,18 +49,31 @@
                         </div>
                     </li>
                     <li>
-                        <div class="language-toggle">
-                            <i class="iconsax" icon-name="translate"></i>
-                            <span class="language-option" [class.active]="selectedLanguage === 'Gujarati'" (click)="setLanguage('Gujarati')"> Gujarati </span>
-                            <div class="toggle-switch" (click)="toggleLanguage()">
-                              <div class="toggle-thumb" [class.right]="selectedLanguage === 'English'"></div>
+                        <div class="senior-toggle" style="display: flex; align-items: center; justify-content: flex-start; gap: 10px;">
+                            <i class="iconsax" icon-name="user-2"></i>
+                            <span style="flex: 1;">Show Seniors</span>
+                            <div class="toggle-switch" (click)="toggleShowSeniors()" style="margin-left: auto;">
+                                <div class="toggle-thumb" [class.right]="showSeniors"></div>
                             </div>
-                            <span class="language-option" [class.active]="selectedLanguage === 'English'" (click)="setLanguage('English')"> English </span>
                         </div>
                     </li>
-                    <li><a class="dropdown-item" [routerLink]="['/home/setting/my-profile']" [routerLinkActive]="['active']"><i class="iconsax" icon-name="user-2"></i> {{ "MY_ACCOUNT" | translate }}</a></li>
+                    <li>
+                        <div class="language-toggle">
+                            <i class="iconsax" icon-name="translate"></i>
+                            <span class="language-option" [class.active]="selectedLanguage === 'Gujarati'"
+                                (click)="setLanguage('Gujarati')"> Gujarati </span>
+                            <div class="toggle-switch" (click)="toggleLanguage()">
+                                <div class="toggle-thumb" [class.right]="selectedLanguage === 'English'"></div>
+                            </div>
+                            <span class="language-option" [class.active]="selectedLanguage === 'English'"
+                                (click)="setLanguage('English')"> English </span>
+                        </div>
+                    </li>
+                    <li><a class="dropdown-item" [routerLink]="['/home/setting/my-profile']" [routerLinkActive]="['active']"><i
+                                class="iconsax" icon-name="user-2"></i> {{ "MY_ACCOUNT" | translate }}</a></li>
                     <!-- <li><a class="dropdown-item" [routerLink]="['/home/setting/change-password']" [routerLinkActive]="['active']"><i class="iconsax" icon-name="lock-2"></i> {{ "CHANGE_PASSWORD" | translate }}</a></li> -->
-                    <li><a class="dropdown-item cursor-pointer" (click)="onClickLogout()"><i class="iconsax" icon-name="logout-2"></i> {{ "LOGOUT" | translate }}</a></li>
+                    <li><a class="dropdown-item cursor-pointer" (click)="onClickLogout()"><i class="iconsax"
+                                icon-name="logout-2"></i> {{ "LOGOUT" | translate }}</a></li>
                 </ul>
             </div>
         </li>

@@ -1,4 +1,4 @@
-<app-layout-header (messageEvent)="getSelectedLanguage($event)" (downloadEvent)="downloadAsPDF()" [maxReceipt]="maxReceipt"></app-layout-header>
+<app-layout-header (messageEvent)="getSelectedLanguage($event)" (showSenior)="setSenior($event)" (downloadEvent)="downloadAsPDF()" [maxReceipt]="maxReceipt"></app-layout-header>
 <!-- <p>{{ selectedLanguage }}</p> -->
 <app-page-layout> 
     <div class="main_content">
@@ -179,14 +179,14 @@
                                     <th *ngIf="isAdmin()"></th>
                                 </tr>
                             </thead>
-                            <tbody *ngIf="userArray?.length; else noData">
-                                <ng-container *ngFor="let user of userArray; let i=index">
+                            <tbody *ngIf="allMembers?.length; else noData">
+                                <ng-container *ngFor="let user of allMembers; let i=index">
 
                                 <tr>
                                     <td>{{ i+1 }} </td>
                                     <td *ngIf="columnControl[userHeader[0]]">{{ user[0] }}</td>
-                                    <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'English'"><label *ngIf="userArray[i]">{{ user[1] }} {{ user[2] }} {{ user[3] }}</label></td>
-                                    <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'Gujarati'"><label *ngIf="userArray[i]">{{ user[12] }} {{ user[13] }} {{ user[14] }}</label></td>
+                                    <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'English'"><label *ngIf="allMembers[i]">{{ user[1] }} {{ user[2] }} {{ user[3] }}</label></td>
+                                    <td *ngIf="columnControl['MemberName'] && selectedLanguage == 'Gujarati'"><label *ngIf="allMembers[i]">{{ user[12] }} {{ user[13] }} {{ user[14] }}</label></td>
                                     <ng-container *ngFor="let cell of user.slice(1); let j=index">
                                         <td class="scrollable-td" *ngIf="columnControl[userHeader[j+1]]" (click)="editReceiptNumber(user, j+1, i+1, edit_yearData)">
                                             <ng-container *ngIf="conditionallyShowCellData(cell, j+1) as cellData">
