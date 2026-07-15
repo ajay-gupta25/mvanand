@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 // Internal modules
 import { environment } from '@env/environment';
 
-import * as $ from 'jquery';
 import { TranslateService } from '@ngx-translate/core';
 import { StoreService } from '@services/store.service';
 import { GoogleAuthService } from '@services/auth/google-auth.service';

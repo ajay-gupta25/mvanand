@@ -9,27 +9,21 @@ import { PermissionService } from 'src/app/shared/auth/permssion.guard';
 import { GoogleSheetsService } from '@services/google-sheet/google-sheets.service';
 import { GoogleAuthService } from '@services/auth/google-auth.service';
 import { Router } from '@angular/router';
-import {jsPDF} from 'jspdf';
+import jsPDF from 'jspdf';
 import { lastValueFrom } from 'rxjs';
 // import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
-import * as pdfMake from 'pdfmake/build/pdfmake';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+pdfMake.vfs = pdfFonts.vfs;
 
 
 // Import the font file
-import { vfs } from '../../../../assets/vfs_fonts';
+// import { vfs } from '../../../../assets/vfs_fonts';
 
-(pdfMake as any).vfs = vfs;
-pdfMake.fonts = {
-  NotoSansGujarati: {
-    normal: 'NotoSansGujarati.ttf',
-    bold: 'NotoSansGujarati-Bold.ttf',
-  },
-  helvetica: {
-    normal: 'helvetica.ttf',
-    bold: 'helvetica-Bold.ttf',
-  },
-};
+// (pdfMake as any).vfs = vfs;
+// pdfMake.fonts is read-only in the ES module build; do not assign to it here.
+// Instead, set the font in the document definition using defaultStyle.font.
 @Component({
     selector: 'app-user',
     templateUrl: './user.component.html',
@@ -40,7 +34,7 @@ pdfMake.fonts = {
 export class UserComponent {
   @ViewChild('session_expired', { static: true }) sessionTemplate!: TemplateRef<any>;
   @ViewChild('custom_msg', { static: true }) custom_msg!: TemplateRef<any>;
-  @ViewChild('pdfTable', {static: false}) pdfTable: ElementRef;
+  @ViewChild('pdfTable', {static: false}) pdfTable!: ElementRef;
   isDeleteButtonClicked = false;
   isImportButtonClicked = false;
   userHeader = [];
@@ -60,26 +54,22 @@ export class UserComponent {
   public isLoading: boolean = true;
   locations: any = [];
   selectedFile: File | null = null;
-
   @Input('data') meals: string[] = [];
   imageUploadstatus: boolean = false;
-  fileName: string;
+  fileName: string = '';
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalpages: number = 1;
-  TotalCount:number = 0;
-  Objectfilter:Object={};
-  sortField: string = 'emp_id'; // Default sort field
-  // sortDirection:string = 'asc'; // Default sort direction
-  selectedCompany: any = null; // Initialize selectedCompany with null
-  selectedLocation: any = null; // Initialize selectedLocation with null
+  TotalCount: number = 0;
+  Objectfilter: Object = {};
+  sortField: string = 'emp_id';
+  selectedCompany: any = null;
+  selectedLocation: any = null;
   selectedStatus: any = null;
-  activeuploadbutton:boolean= false;
-
+  activeuploadbutton: boolean = false;
   loggedIn = false;
   userName: string | null = '';
-
-  public columnControl = {
+  public columnControl: { [key: string]: boolean } = {
     ID: false,
     MemberName: true,
     Firstname: false,
@@ -93,10 +83,7 @@ export class UserComponent {
     BirthDate: false,
     Gautra: false,
     KYC: false,
-    // Add more controls as needed
   };
-
-  // Define which columns can be sorted
   sortableColumns: { [key: string]: boolean } = {
     ID: false,
     MemberName: true,
@@ -104,7 +91,7 @@ export class UserComponent {
     Middlename: true,
     Lastname: true,
     Mobile: false,
-    Address: false, // Example: Address column is not sortable
+    Address: false,
     Location: true,
     Email: false,
     MarriageStatus: false,
@@ -112,19 +99,17 @@ export class UserComponent {
     Gautra: false,
     KYC: false
   };
-
-  // Control which columns have a search box
-  searchableColumns = {
+  searchableColumns: { [key: string]: boolean } = {
     ID: false,
     MemberName: false,
     Firstname: true,
-    Middlename: true, // Example: Middlename search box is hidden
+    Middlename: true,
     Lastname: false,
     Mobile: false,
     Address: false,
     Location: false,
     Email: false,
-    MarriageStatus: false, // Example: MarriageStatus search is disabled
+    MarriageStatus: false,
     BirthDate: false,
     Gautra: false,
     KYC: false
@@ -132,7 +117,6 @@ export class UserComponent {
   searchValues: { [key: string]: string } = {};
   activeSearch: string | null = null;
   isSearchActivate: boolean = false;
-
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = 'asc';
   
@@ -140,13 +124,11 @@ export class UserComponent {
   nonYearColumnCount = 0; // any new column added then this number should be increased accordingly, starting from 0
   baseYear = 2022; // Do not change this // this value handle nonYearColumnCount dynamically, so no more change in var when we adding ay column in excel/db
   receiptEditData: any = {};
-
   columnControlSelectAll = false;
   sortableColumnsSelectAll = false;
   searchableColumnsSelectAll = false;
-
-  languages: any = ['Gujarati', 'Hindi', 'English'];
-  languageControl: any = {
+  languages: string[] = ['Gujarati', 'Hindi', 'English'];
+  languageControl: { [key: string]: boolean } = {
     Gujarati: false, 
     Hindi: false, 
     English: true, 
@@ -159,9 +141,8 @@ export class UserComponent {
   showNumberOfYears = 4;
   activeYearColumns = [];
   pendingCounts: { [column: string]: number } = {};
-  showPendingCount = false;
+  showPendingCount: boolean = false;
   private blinkInterval: any;
-
   selectMessageType: any = undefined;
   customMessage: any;
   messageTypes = [
@@ -811,7 +792,7 @@ export class UserComponent {
         tdata.push({text: this.conditionallyShowCellData(row[h.index], this.nonYearColumnCount), style: 'tableData'})
       });
 
-      return tdata
+      return tdata;
     });
     return tableData;
   }
@@ -901,7 +882,7 @@ export class UserComponent {
     }
 
     // Document definition for pdfMake
-    const docDefinition = {
+    const docDefinition: any = {
       content: content,  // Use the dynamic content
       
       // ADD FOOTER WITH DATE
@@ -940,8 +921,8 @@ export class UserComponent {
         header: {
           fontSize: 18,
           bold: true,
-          alignment: 'center',
-          margin: [0, 15, 0, 0]
+          alignment: 'center' as 'center',
+          margin: [0, 15, 0, 0] as [number, number, number, number]
         },
         tableExample: {
           margin: [20, 5, 0, 10],
@@ -950,12 +931,12 @@ export class UserComponent {
           bold: true,
           fontSize: 12,
           color: 'black',
-          margin: [3, 3, 3, 3]
+          margin: [3, 3, 3, 3] as [number, number, number, number]
         },
         tableData: {
           bold: true,
           color: 'black',
-          margin: [3, 3, 3, 3]
+          margin: [3, 3, 3, 3] as [number, number, number, number]
         }
       },
       defaultStyle: {
@@ -964,6 +945,11 @@ export class UserComponent {
     };
 
     const fileName = `MvAnand_${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}`;
+    if (typeof pdfMake.createPdf !== 'function') {
+      this.toastr.error('PDF generation is not available. Please check pdfMake import.');
+      return;
+    }
+    // Generate and download the PDF
     pdfMake.createPdf(docDefinition).download(fileName+'.pdf');
   }
 
@@ -1519,7 +1505,7 @@ public async downloadTranscriptFast() {
   // public downloadTranscript() {
   //   const table = document.getElementById('transcript_inner') as HTMLElement;
   //   // const fileName = Math.random().toString(36).slice(2);
-  //   const fileName = `${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}-${new Date().getHours().toString().padStart(2,'0')}-${new Date().getMinutes().toString().padStart(2,'0')}`;
+  //   const fileName = `${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}`;
   //   const BATCH_SIZE = 30; // Process 30 rows at a time
   
   //   if (!table) {

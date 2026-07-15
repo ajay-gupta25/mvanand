@@ -1,6 +1,6 @@
 import { Options } from '@angular-slider/ngx-slider';
 import { Component, ElementRef, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
-import * as $ from 'jquery';
+
 import { CompanyService } from '@services/company.service';
 import { Router } from '@angular/router';
 import { FolderService } from '@services/folder.service';

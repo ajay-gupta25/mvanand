@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import * as $ from 'jquery';
+import $ from 'jquery';
 import { PermissionService } from '../../auth/permssion.guard';
 import { Router, NavigationEnd } from '@angular/router';
 import { environment } from '@env/environment';
