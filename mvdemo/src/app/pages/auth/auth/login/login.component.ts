@@ -9,9 +9,10 @@ import { GoogleAuthService } from '@services/auth/google-auth.service';
 import { GoogleSheetsService } from '@services/google-sheet/google-sheets.service';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss'],
+    standalone: false
 })
 export class LoginComponent implements AfterViewInit {
   public appName: string = environment.appName;

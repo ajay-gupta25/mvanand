@@ -1,6 +1,6 @@
 import { Options } from '@angular-slider/ngx-slider';
 import { Component, ElementRef, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
-import * as $ from 'jquery';
+
 import { CompanyService } from '@services/company.service';
 import { Router } from '@angular/router';
 import { FolderService } from '@services/folder.service';
@@ -33,9 +33,10 @@ interface CompanyList {
   company_name:     string;
 }
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss'],
+    standalone: false
 })
 export class DashboardComponent {
   @ViewChild('myChartCallVolume') myChartCallVolume!: ElementRef;

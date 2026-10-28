@@ -5,15 +5,15 @@ import { Router } from '@angular/router';
 // Internal modules
 import { environment } from '@env/environment';
 
-import * as $ from 'jquery';
 import { TranslateService } from '@ngx-translate/core';
 import { StoreService } from '@services/store.service';
 import { GoogleAuthService } from '@services/auth/google-auth.service';
 
 @Component({
-  selector: 'app-layout-header',
-  templateUrl: './layout-header.component.html',
-  styleUrls: ['./layout-header.component.scss']
+    selector: 'app-layout-header',
+    templateUrl: './layout-header.component.html',
+    styleUrls: ['./layout-header.component.scss'],
+    standalone: false
 })
 export class LayoutHeaderComponent implements OnInit {
   @Input() profileImage: string;
@@ -29,10 +29,12 @@ export class LayoutHeaderComponent implements OnInit {
   isLoading: boolean = false;
 
   @Output() messageEvent = new EventEmitter<string>();
+  @Output() showSenior = new EventEmitter<boolean>();
   @Output() downloadEvent = new EventEmitter<any>();
   @Input() maxReceipt: number;
   downloadStatus = false;
   selectedLanguage: any = "English";
+  showSeniors: boolean = false;
   constructor
     (
       public translate: TranslateService,
@@ -50,6 +52,11 @@ export class LayoutHeaderComponent implements OnInit {
     setLanguage(language: string) {
       this.selectedLanguage = language;
       this.messageEvent.emit(this.selectedLanguage);
+    }
+
+    toggleShowSeniors() {
+      this.showSeniors = !this.showSeniors;
+      this.showSenior.emit(this.showSeniors);
     }
 
     downloadPdf() {

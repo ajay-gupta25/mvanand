@@ -12,9 +12,10 @@ import { StoreService } from '@services/store.service';
 import { GoogleSheetsService } from '@services/google-sheet/google-sheets.service';
 
 @Component({
-  selector: 'app-add-users',
-  templateUrl: './add-users.component.html',
-  styleUrls: ['./add-users.component.scss']
+    selector: 'app-add-users',
+    templateUrl: './add-users.component.html',
+    styleUrls: ['./add-users.component.scss'],
+    standalone: false
 })
 export class AddUsersComponent {
   isCreateButtonClicked = false;

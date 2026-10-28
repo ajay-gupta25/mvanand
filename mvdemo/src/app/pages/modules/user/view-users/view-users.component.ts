@@ -5,9 +5,10 @@ import { UserService } from '@services/user.service';
 import { User } from '../user.model'
 
 @Component({
-  selector: 'app-view-users',
-  templateUrl: './view-users.component.html',
-  styleUrls: ['./view-users.component.scss']
+    selector: 'app-view-users',
+    templateUrl: './view-users.component.html',
+    styleUrls: ['./view-users.component.scss'],
+    standalone: false
 })
 export class ViewUsersComponent {
   modelRef: NgbModalRef;

@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { environment } from '@env/environment';
 
 @Component({
-  selector: 'app-layout-footer',
-  templateUrl: './layout-footer.component.html',
-  styleUrls: ['./layout-footer.component.scss']
+    selector: 'app-layout-footer',
+    templateUrl: './layout-footer.component.html',
+    styleUrls: ['./layout-footer.component.scss'],
+    standalone: false
 })
 export class LayoutFooterComponent {
 

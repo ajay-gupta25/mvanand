@@ -9,41 +9,40 @@ import { PermissionService } from 'src/app/shared/auth/permssion.guard';
 import { GoogleSheetsService } from '@services/google-sheet/google-sheets.service';
 import { GoogleAuthService } from '@services/auth/google-auth.service';
 import { Router } from '@angular/router';
-import {jsPDF} from 'jspdf';
+import jsPDF from 'jspdf';
 import { lastValueFrom } from 'rxjs';
 // import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
-import * as pdfMake from 'pdfmake/build/pdfmake';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+pdfMake.vfs = pdfFonts.vfs;
 
 
 // Import the font file
-import { vfs } from '../../../../assets/vfs_fonts';
+// import { vfs } from '../../../../assets/vfs_fonts';
 
-(pdfMake as any).vfs = vfs;
-pdfMake.fonts = {
-  NotoSansGujarati: {
-    normal: 'NotoSansGujarati.ttf',
-    bold: 'NotoSansGujarati-Bold.ttf',
-  },
-  helvetica: {
-    normal: 'helvetica.ttf',
-    bold: 'helvetica-Bold.ttf',
-  },
-};
+// (pdfMake as any).vfs = vfs;
+// pdfMake.fonts is read-only in the ES module build; do not assign to it here.
+// Instead, set the font in the document definition using defaultStyle.font.
 @Component({
-  selector: 'app-user',
-  templateUrl: './user.component.html',
-  styleUrls: ['./user.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-user',
+    templateUrl: './user.component.html',
+    styleUrls: ['./user.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class UserComponent {
   @ViewChild('session_expired', { static: true }) sessionTemplate!: TemplateRef<any>;
   @ViewChild('custom_msg', { static: true }) custom_msg!: TemplateRef<any>;
-  @ViewChild('pdfTable', {static: false}) pdfTable: ElementRef;
+  @ViewChild('pdfTable', {static: false}) pdfTable!: ElementRef;
   isDeleteButtonClicked = false;
   isImportButtonClicked = false;
   userHeader = [];
   userArray = [];
+  seniorMembers = [];
+  members = [];
+  allMembers = [];
+  showSeniorMembers = false;
   statusArray = [{ "key": "Active" },
   { "key": "InActive" }]
   modelRef: NgbModalRef;
@@ -55,26 +54,22 @@ export class UserComponent {
   public isLoading: boolean = true;
   locations: any = [];
   selectedFile: File | null = null;
-
   @Input('data') meals: string[] = [];
   imageUploadstatus: boolean = false;
-  fileName: string;
+  fileName: string = '';
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalpages: number = 1;
-  TotalCount:number = 0;
-  Objectfilter:Object={};
-  sortField: string = 'emp_id'; // Default sort field
-  // sortDirection:string = 'asc'; // Default sort direction
-  selectedCompany: any = null; // Initialize selectedCompany with null
-  selectedLocation: any = null; // Initialize selectedLocation with null
+  TotalCount: number = 0;
+  Objectfilter: Object = {};
+  sortField: string = 'emp_id';
+  selectedCompany: any = null;
+  selectedLocation: any = null;
   selectedStatus: any = null;
-  activeuploadbutton:boolean= false;
-
+  activeuploadbutton: boolean = false;
   loggedIn = false;
   userName: string | null = '';
-
-  public columnControl = {
+  public columnControl: { [key: string]: boolean } = {
     ID: false,
     MemberName: true,
     Firstname: false,
@@ -88,10 +83,7 @@ export class UserComponent {
     BirthDate: false,
     Gautra: false,
     KYC: false,
-    // Add more controls as needed
   };
-
-  // Define which columns can be sorted
   sortableColumns: { [key: string]: boolean } = {
     ID: false,
     MemberName: true,
@@ -99,7 +91,7 @@ export class UserComponent {
     Middlename: true,
     Lastname: true,
     Mobile: false,
-    Address: false, // Example: Address column is not sortable
+    Address: false,
     Location: true,
     Email: false,
     MarriageStatus: false,
@@ -107,19 +99,17 @@ export class UserComponent {
     Gautra: false,
     KYC: false
   };
-
-  // Control which columns have a search box
-  searchableColumns = {
+  searchableColumns: { [key: string]: boolean } = {
     ID: false,
     MemberName: false,
     Firstname: true,
-    Middlename: true, // Example: Middlename search box is hidden
+    Middlename: true,
     Lastname: false,
     Mobile: false,
     Address: false,
     Location: false,
     Email: false,
-    MarriageStatus: false, // Example: MarriageStatus search is disabled
+    MarriageStatus: false,
     BirthDate: false,
     Gautra: false,
     KYC: false
@@ -127,20 +117,18 @@ export class UserComponent {
   searchValues: { [key: string]: string } = {};
   activeSearch: string | null = null;
   isSearchActivate: boolean = false;
-
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | null = 'asc';
   
   // yearColumnHeader;
-  nonYearColumnCount = 15;
+  nonYearColumnCount = 0; // any new column added then this number should be increased accordingly, starting from 0
+  baseYear = 2022; // Do not change this // this value handle nonYearColumnCount dynamically, so no more change in var when we adding ay column in excel/db
   receiptEditData: any = {};
-
   columnControlSelectAll = false;
   sortableColumnsSelectAll = false;
   searchableColumnsSelectAll = false;
-
-  languages: any = ['Gujarati', 'Hindi', 'English'];
-  languageControl: any = {
+  languages: string[] = ['Gujarati', 'Hindi', 'English'];
+  languageControl: { [key: string]: boolean } = {
     Gujarati: false, 
     Hindi: false, 
     English: true, 
@@ -150,20 +138,18 @@ export class UserComponent {
   selectedLanguage = 'English';
   maxReceipt = 0;
   currentYear = new Date().getFullYear(); // 2027
-  showNumberOfYears = 3;
+  showNumberOfYears = 4;
   activeYearColumns = [];
   pendingCounts: { [column: string]: number } = {};
-  showPendingCount = false;
+  showPendingCount: boolean = false;
   private blinkInterval: any;
-
   selectMessageType: any = undefined;
   customMessage: any;
   messageTypes = [
     { name: 'Pending Fees', fnName: 'pendingFees' },
     { name: 'Birthday Wish', fnName: 'birthdayWish' },
-    { name: 'Other', fnName: 'other' },
+    { name: 'Custom Message', fnName: 'other' },
   ];
-
 
   constructor
     (
@@ -184,6 +170,14 @@ export class UserComponent {
 
   getSelectedLanguage(message: string) {
     this.selectedLanguage = message;
+  }
+
+  setSenior(show: boolean) {
+    this.showSeniorMembers = show;
+    this.allMembers = this.getAllMembers();
+    // this.sortDirection = 'desc';
+    // this.sortTable('MemberName');
+
   }
 
   ngOnInit(): void {
@@ -313,15 +307,66 @@ export class UserComponent {
   // }
 
   getMaxReceipt() {
+    console.log('Calculating max receipt');
     let max = 0;
-    this.userArray.forEach(row => {
-      max = max > Number(row[this.nonYearColumnCount + 0]) ? max : row[this.nonYearColumnCount + 0];
-      max = max > Number(row[this.nonYearColumnCount + 1]) ? max : row[this.nonYearColumnCount + 1];
-      max = max > Number(row[this.nonYearColumnCount + 2]) ? max : row[this.nonYearColumnCount + 2];
-      max = max > Number(row[this.nonYearColumnCount + 3]) ? max : row[this.nonYearColumnCount + 3];
-      max = max > Number(row[this.nonYearColumnCount + 4]) ? max : row[this.nonYearColumnCount + 4];
+
+    // this.userHeader.forEach((h, i) => {
+    //   if (Number(h) >= this.baseYear) {
+    //     let allYearRcNumbers = [];
+    //     let userId;
+    //     this.allMembers.forEach(row => {
+    //       max = max > Number(row[i]) ? max : row[i];
+    //       allYearRcNumbers.push(row[i]);
+    //       userId = row[0];
+    //       // }
+    //     })
+    //     this.checkSenior(allYearRcNumbers, userId);
+    //   }
+    // });
+
+    this.userArray.forEach((row) => {
+      // let allYearRcNumbers = [];
+      // let user;
+      this.userHeader.forEach((h, i) => {
+        if (Number(h) >= this.baseYear) {
+          max = max > Number(row[i]) ? max : row[i];
+          // allYearRcNumbers.push(row[i]);
+          // user = row;
+        }
+          // }
+      })
+      // this.checkSenior(allYearRcNumbers, user);
     });
+
+
+    // this.userArray.forEach(row => {
+    //   max = max > Number(row[this.nonYearColumnCount + 0]) ? max : row[this.nonYearColumnCount + 0];
+    //   max = max > Number(row[this.nonYearColumnCount + 1]) ? max : row[this.nonYearColumnCount + 1];
+    //   max = max > Number(row[this.nonYearColumnCount + 2]) ? max : row[this.nonYearColumnCount + 2];
+    //   max = max > Number(row[this.nonYearColumnCount + 3]) ? max : row[this.nonYearColumnCount + 3];
+    //   max = max > Number(row[this.nonYearColumnCount + 4]) ? max : row[this.nonYearColumnCount + 4];
+    // });
+    console.log('checkSenior:', this.seniorMembers);
+    console.log('nonSeniorIds:', this.members);
+    console.log('Max receipt number is:', max);
     return max;
+  }
+
+  checkSenior() {
+    this.members = [];
+    this.seniorMembers = [];
+    this.userArray.forEach((row) => {
+      let allYearRcNumbers = [];
+      this.userHeader.forEach((h, i) => {
+        if (Number(h) >= this.baseYear) {
+          allYearRcNumbers.push(row[i]);
+        }
+          // }
+      })
+      if (allYearRcNumbers.some(num => num == 111)) this.seniorMembers.push(row);
+      else this.members.push(row);
+    });
+
   }
 
   manageSearch() {
@@ -348,12 +393,20 @@ export class UserComponent {
     else return false;
   }
 
+  getAllMembers() {
+    if (this.showSeniorMembers) return [...this.members, ...this.seniorMembers];
+    else return [...this.members];
+  }
+
   fetchSheetData(sheetname) {
     this.sheetsService.getSheetData(sheetname).subscribe({
       next: (res: any) => {
         if (res) {
           this.userHeader = res.values[0] || [];
           this.userArray = res.values.slice(1) || [];
+          this.checkSenior();
+          this.maxReceipt = this.getMaxReceipt(); // also separate senior and non senior members
+          this.allMembers = this.getAllMembers();
           this.sheetsService.userData = res.values;
           // console.log('Fetched Data:', res, this.userArray, this.userHeader);
           // this.userArray = res.values || [];
@@ -363,6 +416,7 @@ export class UserComponent {
           this.userHeader.forEach(header => {
             this.searchValues[header] = '';
           });
+          this.setNonYearColumnCount();
           this.searchValues['MemberName'] = '';
           this.getActiveYearHeaders(this.showNumberOfYears);
           if (!localStorage.getItem('columnControl') || this.checkTogglesState()) {
@@ -371,8 +425,8 @@ export class UserComponent {
           // this.yearColumnHeader = this.sheetsService.userData[0].slice(this.nonYearColumnCount).filter(ud => {
           //   return ud;
           // });
-          this.maxReceipt = this.getMaxReceipt();
           this.getPendingCount();
+          // this.sortTable('MemberName');
         }
       },
       error: (error) => {
@@ -386,7 +440,7 @@ export class UserComponent {
   getActiveYearHeaders(count) {
     this.activeYearColumns = [];
     this.sheetsService.userData[0].forEach((h, i) => {
-      for (let index = count; index >= 0; index--) {
+      for (let index = (count-1); index >= 0; index--) {
         if ((this.currentYear - index) == Number(h)) {
           this.activeYearColumns.push({'header': h, 'index': i});
         }
@@ -470,6 +524,9 @@ export class UserComponent {
     try {
         const response = await lastValueFrom(this.sheetsService.updateSheetData('Sheet1', rowAddress, [userData]));
         console.log('Sheet updated successfully:', response);
+        if (parseInt(this.receiptEditData.cellValue) > this.maxReceipt) {
+          this.maxReceipt = parseInt(this.receiptEditData.cellValue);
+        }
         this.toastr.success('User Updated successfully!', 'Success');
       } catch (error) {
         console.error('Error updating sheet data:', error);
@@ -558,6 +615,14 @@ export class UserComponent {
     // this.preserveState();
   }
 
+  setNonYearColumnCount() {
+    this.userHeader.forEach((h, i) => {
+      if (Number(h) === this.baseYear) {
+        this.nonYearColumnCount = i;
+      }
+    });
+  }
+
   getPendingCount() {
     this.userArray.forEach((user, i) => {
       this.activeYearColumns.forEach((y) => {
@@ -586,7 +651,21 @@ export class UserComponent {
     }
 
     // Perform the sort
-    this.userArray.sort((a, b) => {
+    this.allMembers.sort((a, b) => {
+      if (column === 'MemberName') {
+        // Composite sorting for MemberName
+        const fullNameA = `${a[this.userHeader.indexOf("Firstname")]} ${a[this.userHeader.indexOf('Middlename')]} ${a[this.userHeader.indexOf('Lastname')]}`
+          .trim()
+          .toLowerCase();
+        const fullNameB = `${b[this.userHeader.indexOf('Firstname')]} ${b[this.userHeader.indexOf('Middlename')]} ${b[this.userHeader.indexOf('Lastname')]}`
+          .trim()
+          .toLowerCase();
+        return this.compareValues(fullNameA, fullNameB);
+      } else {
+        return this.compareValues(a[columnIndex], b[columnIndex]);
+      }
+    });
+    this.members.sort((a, b) => {
       if (column === 'MemberName') {
         // Composite sorting for MemberName
         const fullNameA = `${a[this.userHeader.indexOf("Firstname")]} ${a[this.userHeader.indexOf('Middlename')]} ${a[this.userHeader.indexOf('Lastname')]}`
@@ -655,7 +734,11 @@ export class UserComponent {
         return;
       }
   
-      this.userArray = this.sheetsService.userData.slice(1).filter(row => {
+      this.allMembers = this.allMembers.filter(row => {
+        const fullName = `${row[firstNameIndex] || ''} ${row[middleNameIndex] || ''} ${row[lastNameIndex] || ''}`.trim().toLowerCase();
+        return fullName.includes(value);
+      });
+      this.members = this.members.filter(row => {
         const fullName = `${row[firstNameIndex] || ''} ${row[middleNameIndex] || ''} ${row[lastNameIndex] || ''}`.trim().toLowerCase();
         return fullName.includes(value);
       });
@@ -667,7 +750,11 @@ export class UserComponent {
         return;
       }
   
-      this.userArray = this.sheetsService.userData.slice(1).filter(row => {
+      this.allMembers = this.allMembers.filter(row => {
+        const cellValue = (row[columnIndex] || '').toLowerCase();
+        return cellValue.includes(value);
+      });
+      this.members = this.members.filter(row => {
         const cellValue = (row[columnIndex] || '').toLowerCase();
         return cellValue.includes(value);
       });
@@ -675,18 +762,25 @@ export class UserComponent {
   }
   
   resetSearch() {
+    this.checkSenior();
+    this.allMembers = [...this.getAllMembers()];
     this.userArray = [...this.sheetsService.userData.slice(1)];
+    console.log('resetSearch allMembers:', this.allMembers);
+    console.log('resetSearch userArray:', this.userArray);
+    
+    // this.sortDirection = 'desc';
+    // this.sortTable('MemberName');
     this.activeSearch = null;
   }
 
   generateData(data) {
     let tableData = data.map((row, index) => {
-      let memberData = '';
-      if (this.selectedLanguage == 'English') memberData = `${row[1]} ${row[2]} ${row[3]}`;
-      else memberData = `${row[12]} ${row[13]} ${row[14]}`;
+      let memberName = '';
+      if (this.selectedLanguage == 'English') memberName = `${row[1]} ${row[2]} ${row[3]}`;
+      else memberName = `${row[12]} ${row[13]} ${row[14]}`;
       let tdata = [
         {text: (index + 1).toString(), style: 'tableData'}, // #
-        {text: memberData, style: 'tableData'}, // Member Name
+        {text: memberName, style: 'tableData'}, // Member Name
         // {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 0], this.nonYearColumnCount), style: 'tableData'}, // 2022
         // {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 1], this.nonYearColumnCount), style: 'tableData'}, // 2023
         // {text: this.conditionallyShowCellData(row[this.nonYearColumnCount + 2], this.nonYearColumnCount), style: 'tableData'}, // 2024
@@ -698,25 +792,38 @@ export class UserComponent {
         tdata.push({text: this.conditionallyShowCellData(row[h.index], this.nonYearColumnCount), style: 'tableData'})
       });
 
-      return tdata
+      return tdata;
     });
     return tableData;
   }
   
   downloadAsPDF() {
-    // Table headers
-    let hdr = [
+    // Table headers for adult table
+    let memberHdr = [
       {text: '#', style: 'tableHeader'}, 
       {text: this.selectedLanguage == 'English' ? 'Member Name' :'સદસ્યોના નામ', style: 'tableHeader'}, 
     ];
 
     this.activeYearColumns.forEach((h) => {
-      hdr.push({text: h?.header, style: 'tableHeader'})
+      memberHdr.push({text: h?.header, style: 'tableHeader'})
     });
-  
-    // Generate data for the table
-    const tableBody = [hdr, ...this.generateData(this.userArray)];
-  
+
+    // Table headers for senior table (create a separate array to avoid consumption issue)
+    let seniorHdr = [
+      {text: '#', style: 'tableHeader'}, 
+      {text: this.selectedLanguage == 'English' ? 'Member Name' :'સદસ્યોના નામ', style: 'tableHeader'}, 
+    ];
+
+    this.activeYearColumns.forEach((h) => {
+      seniorHdr.push({text: h?.header, style: 'tableHeader'})
+    });
+    
+    // Generate data for the tables
+    const adultBody = [memberHdr, ...this.generateData(this.members)];
+    const seniorBody = [seniorHdr, ...this.generateData(this.seniorMembers)];
+    console.log('adultBody:----:', adultBody);
+    console.log('seniorBody:----:', seniorBody);
+
     // Get current date in formatted string
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString('en-GB', {
@@ -733,25 +840,50 @@ export class UserComponent {
       minute: '2-digit'
     });
 
-    // Document definition for pdfMake
-    const docDefinition = {
-      content: [
-        {
-          stack: [
+    // Prepare content array dynamically
+    const content = [
+      {
+        stack: [
           this.selectedLanguage == 'English' ? 'Mathur Vyshy Shakha Sabha, Anand' :'માથુર વૈશ્ય શાખા સભા, આણંદ',
-          ],
-          style: 'header'
+        ],
+        style: 'header'
+      },
+      { text: this.selectedLanguage == 'English' ? 'Last Added: '+this.maxReceipt  : 'પાછલી રસીદ નં: '+this.maxReceipt, fontSize: 10, bold: false, alignment: 'right', margin: [0, 10, 0, 10] },
+      {
+        table: {
+          headerRows: 1,
+          body: adultBody,
         },
-        { text: this.selectedLanguage == 'English' ? 'Last Added: '+this.maxReceipt  : 'પાછલી રસીદ નં: '+this.maxReceipt, fontSize: 10, bold: false, alignment: 'right', margin: [0, 10, 0, 10] },
-        {
-          table: {
-            headerRows: 1,
-            body: tableBody,
-          },
-          style: 'tableExample',
-          layout: 'lightHorizontalLines',
+        style: 'tableExample',
+        layout: 'lightHorizontalLines',
+      },
+    ];
+
+    // Conditionally add the senior section only if seniorBody has data rows
+    if (this.showSeniorMembers && seniorBody && seniorBody.length > 1) {  // >1 because 1 would be just the header row
+      content.push({ text: '', fontSize: 10, bold: false, alignment: 'center', margin: [0, 20, 0, 0] });
+
+      content.push({
+        pageBreak: 'before',
+        stack: [
+          this.selectedLanguage == 'English' ? 'Senior Citizen, Anand' :'વરિષ્ઠ સદસ્ય, આણંદ',
+        ],
+        style: 'header'
+      } as any);
+
+      content.push({
+        table: {
+          headerRows: 1,
+          body: seniorBody,
         },
-      ],
+        style: 'tableExample',
+        layout: 'lightHorizontalLines',
+      });
+    }
+
+    // Document definition for pdfMake
+    const docDefinition: any = {
+      content: content,  // Use the dynamic content
       
       // ADD FOOTER WITH DATE
       footer: function(currentPage, pageCount) {
@@ -775,24 +907,22 @@ export class UserComponent {
         ];
       },
       
-      // OR ADD HEADER WITH DATE (choose one)
-      /*
-      header: function(currentPage, pageCount) {
-        return {
-          text: `Report Date: ${formattedDate}`,
-          alignment: 'right',
-          fontSize: 10,
-          margin: [0, 10, 20, 0]
-        };
-      },
-      */
+      // ADD HEADER WITH DATE (uncommented to ensure it prints on each page, including the new page)
+      // header: function(currentPage, pageCount) {
+      //   return {
+      //     text: `Report Date: ${formattedDate}`,
+      //     alignment: 'right',
+      //     fontSize: 10,
+      //     margin: [0, 10, 20, 0]
+      //   };
+      // },
 
       styles: {
         header: {
           fontSize: 18,
           bold: true,
-          alignment: 'center',
-          margin: [0, 15, 0, 0]
+          alignment: 'center' as 'center',
+          margin: [0, 15, 0, 0] as [number, number, number, number]
         },
         tableExample: {
           margin: [20, 5, 0, 10],
@@ -801,20 +931,25 @@ export class UserComponent {
           bold: true,
           fontSize: 12,
           color: 'black',
-          margin: [3, 3, 3, 3]
+          margin: [3, 3, 3, 3] as [number, number, number, number]
         },
         tableData: {
           bold: true,
           color: 'black',
-          margin: [3, 3, 3, 3]
+          margin: [3, 3, 3, 3] as [number, number, number, number]
         }
       },
       defaultStyle: {
         font: this.selectedLanguage == 'English'? 'helvetica' : 'NotoSansGujarati',
       },
     };
-  
+
     const fileName = `MvAnand_${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}`;
+    if (typeof pdfMake.createPdf !== 'function') {
+      this.toastr.error('PDF generation is not available. Please check pdfMake import.');
+      return;
+    }
+    // Generate and download the PDF
     pdfMake.createPdf(docDefinition).download(fileName+'.pdf');
   }
 
@@ -972,7 +1107,7 @@ public async downloadTranscriptFast() {
   }
 
 
-
+  // Whatsapp Message Integration
   generateWhatsappLinks(rowId: any): any { 
     if (this.selectMessageType == 'pendingFees') {
       this.pendingFees(rowId);
@@ -986,12 +1121,12 @@ public async downloadTranscriptFast() {
     }
   }
   pendingFees(rowId: any): any {
-    console.log('generateWhatsappLinks called with entry:', rowId, this.userArray[rowId]);
-    let rowData = [this.userArray[rowId][12] + " " + this.userArray[rowId][13] + " " + this.userArray[rowId][14], this.userArray[rowId][4], ...this.userArray[rowId].slice(this.nonYearColumnCount)];
-    // let rowData = [this.userArray[rowId][12] + " " + this.userArray[rowId][13] + " " + this.userArray[rowId][14], this.userArray[rowId][4], this.userArray[rowId][15],this.userArray[rowId][16],this.userArray[rowId][17],this.userArray[rowId][18]];
+    console.log('generateWhatsappLinks called with entry:', rowId, this.allMembers[rowId]);
+    let rowData = [this.allMembers[rowId][12] + " " + this.allMembers[rowId][13] + " " + this.allMembers[rowId][14], this.allMembers[rowId][4], ...this.allMembers[rowId].slice(this.nonYearColumnCount)];
+    // let rowData = [this.allMembers[rowId][12] + " " + this.allMembers[rowId][13] + " " + this.allMembers[rowId][14], this.allMembers[rowId][4], this.allMembers[rowId][15],this.allMembers[rowId][16],this.allMembers[rowId][17],this.allMembers[rowId][18]];
     console.log('Row Data:', rowData);
     // return;
-    const yearLabels = [2022, 2023, 2024, 2025]; // add year here as next year coming like 2026, 2027, etc.
+    const yearLabels = Array.from({ length: (this.currentYear-this.baseYear)+1 }, (_, i) => this.baseYear + i); 
     const results = [];
 
     // for (const entry of data) {
@@ -1047,8 +1182,8 @@ public async downloadTranscriptFast() {
   }
   
   otherTextMessage(rowId: any) {
-    const mobile = this.userArray[rowId][4];
-    const username = this.selectedLanguage == 'Gujarati' ? this.userArray[rowId][12]+" "+this.userArray[rowId][13]+" "+this.userArray[rowId][14] : this.userArray[rowId][1]+" "+this.userArray[rowId][2]+" "+this.userArray[rowId][3];
+    const mobile = this.allMembers[rowId][4];
+    const username = this.selectedLanguage == 'Gujarati' ? this.allMembers[rowId][12]+" "+this.allMembers[rowId][13]+" "+this.allMembers[rowId][14] : this.allMembers[rowId][1]+" "+this.allMembers[rowId][2]+" "+this.allMembers[rowId][3];
     const mentionedMessage = this.customMessage.split('@user').join(username);
     console.log('otherTextMessage called from :', rowId, mobile);
     this.prepareWhatsappLinks(mentionedMessage, mobile);
@@ -1370,7 +1505,7 @@ public async downloadTranscriptFast() {
   // public downloadTranscript() {
   //   const table = document.getElementById('transcript_inner') as HTMLElement;
   //   // const fileName = Math.random().toString(36).slice(2);
-  //   const fileName = `${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}-${new Date().getHours().toString().padStart(2,'0')}-${new Date().getMinutes().toString().padStart(2,'0')}`;
+  //   const fileName = `${new Date().getDate().toString().padStart(2,'0')}-${(new Date().getMonth()+1).toString().padStart(2,'0')}-${new Date().getFullYear()}`;
   //   const BATCH_SIZE = 30; // Process 30 rows at a time
   
   //   if (!table) {

@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { PermissionService } from 'src/app/shared/auth/permssion.guard';
 
 @Component({
-  selector: 'app-access-denied',
-  templateUrl: './access-denied.component.html',
-  styleUrls: ['./access-denied.component.scss']
+    selector: 'app-access-denied',
+    templateUrl: './access-denied.component.html',
+    styleUrls: ['./access-denied.component.scss'],
+    standalone: false
 })
 export class AccessDeniedComponent {
 
